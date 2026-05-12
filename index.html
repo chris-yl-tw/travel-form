@@ -1,0 +1,2893 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>115年國外旅遊補助申請單</title>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<style>
+/* ── 登入遮罩 ── */
+#login-overlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;
+  background:linear-gradient(150deg,#1e3a5f 0%,#2a5298 100%);
+  display:flex;align-items:center;justify-content:center;}
+#login-box{background:#fff;border-radius:20px;padding:48px 40px;text-align:center;
+  box-shadow:0 12px 48px rgba(0,0,0,.35);max-width:400px;width:90%;}
+#login-logo{font-size:48px;margin-bottom:12px;}
+#login-title{color:#1e3a5f;font-size:20px;font-weight:bold;margin-bottom:4px;font-family:"Microsoft JhengHei",sans-serif;}
+#login-sub{color:#888;font-size:12px;margin-bottom:28px;font-family:"Microsoft JhengHei",sans-serif;}
+#login-error{color:#e74c3c;font-size:12px;margin-top:14px;display:none;font-family:"Microsoft JhengHei",sans-serif;}
+#login-user{display:flex;align-items:center;gap:8px;background:#f0f4ff;
+  border-radius:20px;padding:4px 12px 4px 4px;cursor:pointer;font-size:12px;color:#1e3a5f;}
+#login-user img{width:28px;height:28px;border-radius:50%;}
+#login-user:hover{background:#dce8f8;}
+</style>
+<style>
+/* ── Reset ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --navy:#1e3a5f; --navy2:#2a5298; --green:#27ae60; --red:#e74c3c; --purple:#8e44ad;
+  --sec-bg:#dce8f8; --sub-bg:#eaf0fb; --lbl-bg:#f4f6fb; --inp-focus:#eef4ff;
+  --calc-bg:#fefdf0; --sep-bg:#c4d6f0; --bdr:#9aaac8; --card-shadow:0 4px 20px rgba(0,0,0,.15);
+}
+body{font-family:"Microsoft JhengHei","微軟正黑體","Noto Sans TC",sans-serif;font-size:12px;
+  background:linear-gradient(150deg,#c9d4e8 0%,#a8b8d0 100%);min-height:100vh;color:#111}
+
+/* ── 工具列 ── */
+.toolbar{position:sticky;top:0;z-index:300;
+  background:linear-gradient(90deg,var(--navy),var(--navy2));
+  display:flex;align-items:center;gap:10px;padding:9px 20px;
+  box-shadow:0 3px 10px rgba(0,0,0,.4)}
+.t-title{color:#fff;font-size:15px;font-weight:bold;flex:1;letter-spacing:.5px}
+.t-badge{background:#f5a623;color:var(--navy);font-size:10.5px;font-weight:bold;
+  padding:1px 8px;border-radius:20px;margin-left:8px;vertical-align:middle}
+.btn{padding:7px 18px;border:none;border-radius:6px;cursor:pointer;font-size:13px;
+  font-family:inherit;font-weight:bold;transition:opacity .15s,transform .1s}
+.btn:hover{opacity:.85;transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-emp{background:var(--purple);color:#fff}
+.btn-reset{background:var(--red);color:#fff}
+.btn-print{background:var(--green);color:#fff}
+
+/* ── 步驟列 ── */
+.step-bar{display:flex;align-items:center;justify-content:center;
+  padding:14px 0 10px;gap:0;user-select:none}
+.step{display:flex;align-items:center;flex-direction:column;position:relative;min-width:90px}
+.step-circle{width:32px;height:32px;border-radius:50%;border:2px solid #b0bcd0;
+  background:#e8edf5;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:bold;color:#7a8aaa;transition:all .3s}
+.step-label{font-size:10.5px;color:#7a8aaa;margin-top:4px;white-space:nowrap;transition:all .3s}
+.step.active .step-circle{background:var(--navy2);border-color:var(--navy2);color:#fff}
+.step.active .step-label{color:var(--navy2);font-weight:bold}
+.step.done .step-circle{background:var(--green);border-color:var(--green);color:#fff}
+.step.done .step-label{color:var(--green)}
+.step-line{flex:1;height:2px;background:#d0dae8;margin:0 4px;margin-top:-16px;min-width:20px;transition:background .3s}
+.step-line.done{background:var(--green)}
+
+/* ── 頁面卡片 ── */
+.wizard{padding:10px 16px 40px;max-width:900px;margin:0 auto}
+.page-card{display:none;background:#fff;border-radius:10px;
+  box-shadow:var(--card-shadow);overflow:hidden;animation:fadeIn .25s ease}
+.page-card.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card-head{background:linear-gradient(90deg,var(--navy),var(--navy2));
+  color:#fff;padding:12px 20px;display:flex;align-items:center;gap:10px}
+.card-head h2{font-size:15px;letter-spacing:.5px;flex:1}
+.card-head .page-no{background:rgba(255,255,255,.25);border-radius:20px;
+  padding:1px 10px;font-size:11px}
+.card-body{padding:18px 22px;overflow-x:auto}
+#p-preview .card-body{padding:14px 16px;background:#e8edf5}
+.card-foot{padding:12px 22px 18px;display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid #e0e8f4;background:#fafcff}
+
+/* ── 表單欄位組 ── */
+.field-grid{display:grid;gap:10px 16px;margin-bottom:12px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.g1{grid-template-columns:1fr}
+.field-label{font-size:13px;font-weight:bold;color:var(--navy);margin-bottom:3px}
+.field-input{border:1px solid #c4d0e4;border-radius:6px;padding:6px 10px;
+  font-family:inherit;font-size:12px;width:100%;outline:none;background:#f8faff;
+  transition:border-color .15s,background .15s}
+.field-input:focus{border-color:var(--navy2);background:var(--inp-focus)}
+.field-input[readonly]{background:#f0f3f8;color:#555;cursor:default}
+::placeholder{color:#aab4c8;font-size:11px}
+
+/* 工號包裝 */
+.empid-wrap{position:relative}
+.emp-matched{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  background:var(--green);color:#fff;font-size:10px;font-weight:bold;
+  padding:1px 7px;border-radius:10px;opacity:0;transition:opacity .2s;pointer-events:none}
+.emp-matched.show{opacity:1}
+
+/* ── 旅遊方式選擇 ── */
+.trip-selector{display:flex;gap:16px;margin-top:6px}
+.trip-opt{flex:1;border:2px solid #c4d0e4;border-radius:10px;padding:14px;
+  cursor:pointer;text-align:center;transition:all .2s;background:#f8faff}
+.trip-opt:hover{border-color:var(--navy2);background:var(--inp-focus)}
+.trip-opt.selected{border-color:var(--navy2);background:var(--navy2);color:#fff}
+.trip-opt input[type=radio]{display:none}
+.trip-opt .trip-icon{font-size:28px;display:block;margin-bottom:6px}
+.trip-opt .trip-name{font-size:14px;font-weight:bold}
+.trip-opt .trip-desc{font-size:10.5px;margin-top:3px;opacity:.75}
+
+/* ── 費用表格（Machine ticket / Hotel / Package） ── */
+.fee-section{margin-bottom:16px}
+.fee-title{font-weight:bold;font-size:13px;color:var(--navy);
+  background:var(--sub-bg);border-left:4px solid var(--navy2);
+  padding:6px 12px;margin-bottom:8px;border-radius:0 4px 4px 0}
+.fee-note{font-size:10.5px;color:#555;background:#fafcff;border:1px solid #dde8f4;
+  border-radius:6px;padding:8px 12px;margin-bottom:12px;line-height:1.7}
+
+.fee-table{width:100%;border-collapse:collapse;font-size:11.5px}
+.fee-table th,.fee-table td{border:1px solid #c8d4e4;padding:5px 8px;vertical-align:middle}
+.fee-table th{background:var(--lbl-bg);color:var(--navy);font-weight:bold;text-align:center}
+.fee-table td:first-child{background:var(--lbl-bg);color:#333;font-size:10.5px;
+  white-space:nowrap;text-align:center}
+.fee-table input{border:none;border-bottom:1.5px solid #b8c8e0;width:100%;outline:none;
+  font-family:inherit;font-size:11.5px;background:transparent;padding:2px 3px;transition:all .15s}
+.fee-table input:focus{border-bottom-color:var(--navy2);background:var(--inp-focus)}
+.fee-table .check-cell{text-align:center;padding:6px 4px}
+input[type=checkbox]{width:13px;height:13px;cursor:pointer;
+  margin:0 3px 0 5px;accent-color:var(--navy2);vertical-align:middle}
+
+/* 補助對象 */
+.benefit-group{background:#fafcff;border:1px solid #dde8f4;
+  border-radius:6px;padding:10px 14px;line-height:2}
+.benefit-group label{margin-right:4px;cursor:pointer}
+.mini-num{width:36px;border:none;border-bottom:1.5px solid #9aaac8;
+  background:transparent;font-family:inherit;font-size:12px;text-align:center;
+  outline:none;padding:0 2px}
+.mini-num:focus{border-bottom-color:var(--navy2)}
+
+/* 日期欄 */
+.date-wrap{display:flex;align-items:center;gap:6px}
+.date-input{flex:1;border:1px solid #c4d0e4;border-radius:6px;
+  padding:6px 8px;font-family:inherit;font-size:12px;
+  outline:none;text-align:center;background:#f8faff;transition:all .15s}
+.date-input:focus{border-color:var(--navy2);background:var(--inp-focus)}
+.date-sep{font-weight:bold;font-size:14px;color:#666}
+
+/* 導航按鈕 */
+.nav-back{background:#6c757d;color:#fff}
+.nav-next{background:var(--navy2);color:#fff}
+.nav-preview{background:var(--green);color:#fff}
+.nav-print{background:var(--green);color:#fff}
+
+/* ── 預覽 ── */
+.preview-info{background:#e8f4e8;border:1px solid #a8d8a8;border-radius:6px;
+  padding:10px 14px;margin-bottom:16px;font-size:12px;color:#2d6a2d}
+
+/* A4 紙張預覽框（螢幕模擬 A4 外觀） */
+#preview-content{
+  background:#fff;
+  width:190mm;          /* A4 210mm - 左右各 10mm margin */
+  min-height:267mm;     /* A4 297mm - 上下各 15mm margin */
+  margin:0 auto;
+  padding:8mm 10mm;
+  box-shadow:0 6px 28px rgba(0,0,0,.30);
+  font-family:"Microsoft JhengHei","微軟正黑體","Noto Sans TC",sans-serif;
+  font-size:11.5px;
+  box-sizing:border-box;
+}
+
+/* ── 以下是列印用完整表格 ── */
+@media screen{#print-area{display:none}}
+
+@media print{
+  .toolbar,.step-bar,.wizard,.overlay,#empid-hint-bar{display:none!important}
+  #print-area{display:block!important}
+  body{background:#fff;margin:0;padding:0}
+  @page{size:A4 portrait;margin:8mm 10mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #print-area{width:100%;font-size:12px;}
+  table.pt td{font-size:11.5px;padding:5px 7px;height:auto;line-height:1.55;}
+}
+
+/* 列印用表格樣式 */
+table.pt{width:100%;border-collapse:collapse;table-layout:fixed}
+table.pt col{width:6.25%}
+table.pt td{border:1px solid #9aaac8;padding:5px 7px;vertical-align:middle;
+  line-height:1.55;font-size:12px;overflow:hidden}
+.pt-title{background:var(--navy);color:#fff;text-align:center;
+  font-size:19px;font-weight:bold;padding:8px;letter-spacing:5px;border:none;height:38px}
+.pt-lbl{background:var(--lbl-bg);font-size:10.5px;color:#2a3550;text-align:center}
+.pt-lbl2{background:var(--lbl-bg);font-size:10px;color:#2a3550;text-align:center;line-height:1.6}
+.pt-sec{background:var(--sec-bg);font-weight:bold;font-size:11.5px;color:var(--navy);
+  padding:4px 6px;border-top:1px solid var(--bdr)!important}
+.pt-sub{background:var(--sub-bg);font-weight:bold;font-size:11px;color:var(--navy);
+  padding:3px 6px;border-top:1px solid #b0c4e0!important}
+.pt-note{font-size:10px;color:#444;line-height:1.7;padding:3px 6px;background:#fafcff}
+.pt-calc{background:var(--calc-bg)}
+.pt-sep{text-align:center;font-weight:bold;font-size:12px;background:var(--sep-bg);
+  color:var(--navy);letter-spacing:3px;border-top:1px solid var(--bdr)!important}
+.pt-v{font-size:11px;color:#000}
+.ptc{text-align:center}.ptr{text-align:right}
+.pt-bold{font-weight:bold;font-size:13px;color:var(--navy)}
+
+/* ── Modal ── */
+.overlay{display:none;position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(3px);
+  align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:10px;width:min(780px,96vw);max-height:88vh;
+  display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.4);overflow:hidden;font-size:13px}
+.modal-head{background:linear-gradient(90deg,var(--navy),var(--navy2));color:#fff;
+  padding:14px 20px;display:flex;align-items:center;gap:10px}
+.modal-head h2{flex:1;font-size:16px;letter-spacing:.5px}
+.modal-body{padding:16px 20px;overflow-y:auto;flex:1}
+.add-row{display:flex;gap:8px;margin-bottom:14px;align-items:center}
+.add-row input{flex:1;border:1px solid #c0cce0;border-radius:6px;
+  padding:7px 10px;font-family:inherit;font-size:13px;outline:none;transition:border-color .15s}
+.add-row input:focus{border-color:var(--navy2);background:var(--inp-focus)}
+.add-row input::placeholder{color:#aab;font-size:12px}
+.emp-table{width:100%;border-collapse:collapse}
+.emp-table th{background:var(--sec-bg);color:var(--navy);font-weight:bold;font-size:12px;
+  padding:8px 10px;text-align:left;border-bottom:2px solid var(--navy2)}
+.emp-table td{padding:7px 10px;border-bottom:1px solid #e0e8f4;font-size:13px;vertical-align:middle}
+.emp-table tr:hover td{background:#f4f8ff}
+.emp-table td input{border:none;border-bottom:1.5px solid transparent;background:transparent;
+  font-family:inherit;font-size:13px;width:100%;outline:none;padding:1px 2px;transition:border-color .15s}
+.emp-table td input:focus{border-bottom-color:var(--navy2);background:var(--inp-focus)}
+.btn-sm{padding:4px 11px;border:none;border-radius:5px;cursor:pointer;
+  font-size:12px;font-family:inherit;font-weight:bold;transition:opacity .15s}
+.btn-sm:hover{opacity:.8}
+.btn-add{background:var(--green);color:#fff;padding:7px 16px}
+.btn-del{background:var(--red);color:#fff}
+.btn-close-m{background:#888;color:#fff;padding:10px 20px;font-size:14px}
+.modal-foot{padding:12px 20px;background:#f8faff;border-top:1px solid #dde6f4;
+  display:flex;justify-content:flex-end;gap:10px}
+#emp-empty{text-align:center;color:#999;padding:20px 0;display:none}
+.section-divider{border:none;border-top:1px solid #e0e8f4;margin:14px 0}
+
+/* ── 趟次卡片 ── */
+.trip-cards{display:grid;gap:12px;grid-template-columns:1fr}
+.trip-cards.cols2{grid-template-columns:1fr 1fr}
+.trip-card{border:1px solid var(--bdr);border-radius:8px;overflow:hidden}
+.trip-card-head{background:var(--sub-bg);padding:7px 12px;
+  display:flex;justify-content:space-between;align-items:center;
+  font-weight:bold;color:var(--navy);font-size:13px}
+.trip-card-body{padding:10px 14px}
+.trip-card-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px}
+.trip-card-row label{display:flex;align-items:center;gap:4px;cursor:pointer}
+.trip-card-row .row-label{min-width:140px;color:#444;font-size:11px}
+.trip-card-row input[type=number]{flex:1;border:none;border-bottom:1.5px solid #b8c8e0;
+  background:transparent;font-family:inherit;font-size:12px;outline:none;
+  padding:3px 4px;transition:border-color .15s}
+.trip-card-row input[type=number]:focus{border-bottom-color:var(--navy2);background:var(--inp-focus)}
+/* 消除瀏覽器 autofill 黃色背景 */
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,input:-webkit-autofill:active{
+  -webkit-box-shadow:0 0 0 60px #fff inset!important;
+  -webkit-text-fill-color:inherit!important;
+  transition:background-color 9999s ease-in-out 0s;
+}
+.btn-rm-trip{background:#e74c3c;color:#fff;border:none;border-radius:5px;
+  padding:3px 10px;cursor:pointer;font-size:11px;font-weight:bold}
+.btn-rm-trip:hover{opacity:.8}
+</style>
+</head>
+<body>
+
+<!-- ════ 登入遮罩 ════ -->
+<div id="login-overlay">
+  <div id="login-box">
+    <div id="login-logo">✈️</div>
+    <div id="login-title">115年國外旅遊補助申請單</div>
+    <div id="login-sub">請使用弈樂科技 Google 帳號登入</div>
+    <div id="google-btn-wrap" style="display:flex;justify-content:center;"></div>
+    <div id="login-error">⚠ 僅限弈樂科技（@yile.com.tw）帳號使用</div>
+  </div>
+</div>
+
+<!-- ════ 工具列 ════ -->
+<div class="toolbar">
+  <div class="t-title">115年國外旅遊補助申請單與查詢</div>
+  <div id="login-user" onclick="confirmLogout()" title="點此登出" style="display:none;">
+    <img id="login-avatar" src="" alt="">
+    <span id="login-name"></span>
+    <span style="color:#aaa;font-size:10px;">▼</span>
+  </div>
+  <button class="btn btn-emp" onclick="openEmpModal()" title="員工資料管理" style="font-size:26px;line-height:1;padding:4px 14px;">⚙</button>
+</div>
+
+<!-- ════ 步驟列 ════ -->
+<div class="step-bar" id="step-bar">
+  <div class="step active" id="st1"><div class="step-circle">1</div><div class="step-label">基本資料</div></div>
+  <div class="step-line" id="sl1"></div>
+  <div class="step" id="st2"><div class="step-circle">2</div><div class="step-label">費用填寫</div></div>
+  <div class="step-line" id="sl2"></div>
+  <div class="step" id="st3"><div class="step-circle">3</div><div class="step-label">住宿費用</div></div>
+  <div class="step-line" id="sl3"></div>
+  <div class="step" id="st4"><div class="step-circle" id="st4c">✓</div><div class="step-label">預覽確認</div></div>
+</div>
+
+<!-- ════ 提示橫幅 ════ -->
+<div id="empid-hint-bar" style="
+  background:linear-gradient(90deg,#eaf4ff,#f0f8ff);
+  border-left:4px solid #2a5298;
+  padding:9px 20px;
+  font-size:12.5px;
+  color:#1e3a5f;
+  letter-spacing:.2px;
+  line-height:1.6;
+  text-align:center;
+">
+  <span style="font-size:20px;">💡</span> <span style="color:#e74c3c;font-weight:bold;">如需查詢是否已填寫旅遊 Google 表單，請輸入工號；若系統成功帶入「旅遊日期」、「旅遊地點」等相關資料，即表示已完成表單填寫。補助對象人數請依提示自行勾選確認。</span>
+</div>
+
+<!-- ════ 巫師容器 ════ -->
+<div class="wizard">
+
+<!-- ── 第1頁：基本資料 ── -->
+<div class="page-card active" id="p1">
+  <div class="card-head">
+    <h2>基本資料</h2><span class="page-no">第 1 步</span>
+  </div>
+  <div class="card-body">
+
+    <!-- 工號 / 姓名 -->
+    <div class="field-grid g2">
+      <div>
+        <div class="field-label">工　號</div>
+        <div class="empid-wrap">
+          <input class="field-input" type="text" id="empid"
+            placeholder="輸入工號，自動帶入姓名／部門／單位"
+            list="emp-datalist" autocomplete="off" oninput="onEmpIdInput(this.value)">
+          <span class="emp-matched" id="emp-matched-badge">已帶入</span>
+          <datalist id="emp-datalist"></datalist>
+        </div>
+      </div>
+      <div>
+        <div class="field-label">姓　名</div>
+        <input class="field-input" type="text" id="name" placeholder="（自動帶入）">
+      </div>
+    </div>
+
+    <!-- 部門 / 單位 -->
+    <div class="field-grid g2">
+      <div>
+        <div class="field-label">部　門</div>
+        <input class="field-input" type="text" id="dept" placeholder="（自動帶入）">
+      </div>
+      <div>
+        <div class="field-label">單　位</div>
+        <input class="field-input" type="text" id="unit" placeholder="（自動帶入）">
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 旅遊日期 -->
+    <div style="margin-bottom:10px">
+      <div class="field-label">旅遊日期 <span style="font-weight:normal;color:#888;font-size:10px;">※請填出國及回國日期</span></div>
+      <div class="date-wrap" style="width:100%;gap:4px;align-items:center;">
+        <!-- 出發日期 -->
+        <input class="mini-num" type="number" id="ds_y" min="100" max="200" placeholder="115"
+          style="flex:1.5;min-width:25px;width:auto;" oninput="syncDate()">
+        <span style="white-space:nowrap;">年</span>
+        <input class="mini-num" type="number" id="ds_m" min="1" max="12" placeholder="月"
+          style="flex:1.5;min-width:25px;width:auto;" oninput="syncDate()">
+        <span style="white-space:nowrap;">月</span>
+        <input class="mini-num" type="number" id="ds_d" min="1" max="31" placeholder="日"
+          style="flex:1.5;min-width:25px;width:auto;" oninput="syncDate()">
+        <span style="white-space:nowrap;">日</span>
+        <span class="date-sep" style="padding:0 24px;font-size:16px;white-space:nowrap;">～</span>
+        <!-- 返國日期 -->
+        <input class="mini-num" type="number" id="de_y" min="100" max="200" placeholder="115"
+          style="flex:1.5;min-width:25px;width:auto;" oninput="syncDate()">
+        <span style="white-space:nowrap;">年</span>
+        <input class="mini-num" type="number" id="de_m" min="1" max="12" placeholder="月"
+          style="flex:1.5;min-width:25px;width:auto;" oninput="syncDate()">
+        <span style="white-space:nowrap;">月</span>
+        <input class="mini-num" type="number" id="de_d" min="1" max="31" placeholder="日"
+          style="flex:1.5;min-width:25px;width:auto;" oninput="syncDate()">
+        <span style="white-space:nowrap;">日</span>
+        <!-- 隱藏合併欄位供預覽使用 -->
+        <input type="hidden" id="date_start"><input type="hidden" id="date_end">
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;white-space:nowrap;margin-top:8px;">
+        旅遊假&nbsp;<input class="mini-num" type="number" id="travel_days" min="0" placeholder="0" style="width:72px;text-align:center;">天
+        &emsp;&emsp;&emsp;&emsp;特休&nbsp;<input class="mini-num" type="number" id="special_days" min="0" placeholder="0" style="width:72px;text-align:center;">天<span style="font-weight:normal;color:var(--red);font-size:11px;">*（選填）</span>
+      </div>
+    </div>
+
+    <!-- 旅遊地點 / 其他假別 -->
+    <div class="field-grid g2">
+      <div>
+        <div class="field-label">旅遊地點</div>
+        <input class="field-input" type="text" id="destination" placeholder="旅遊地點（國家 / 城市）">
+      </div>
+      <div>
+        <div class="field-label">其他假別 <span style="font-weight:normal;color:var(--red);font-size:11px;">*（選填）</span></div>
+        <input class="field-input" type="text" id="other_leave" placeholder="假別名稱／天數，例：婚假6天">
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 補助對象 -->
+    <div style="margin-bottom:10px">
+      <div class="field-label">補助對象人數</div>
+      <div class="benefit-group">
+        <label><input type="checkbox" id="ck_self" onchange="calcPpl()">本人</label>
+        <label><input type="checkbox" id="ck_sp"   onchange="calcPpl()">配偶</label>
+        <label><input type="checkbox" id="ck_ch"   onchange="calcPpl()">子女（</label><input
+          type="number" id="ch_cnt" class="mini-num" min="0" placeholder="0" oninput="calcPpl()">人）
+        <label><input type="checkbox" id="ck_fa"  onchange="calcPpl()">父親</label>
+        <label><input type="checkbox" id="ck_mo"  onchange="calcPpl()">母親</label>
+        <label><input type="checkbox" id="ck_spf" onchange="calcPpl()">配偶父親</label>
+        <label><input type="checkbox" id="ck_spm" onchange="calcPpl()">配偶母親</label>
+        &emsp;，共 <input type="number" id="tot_ppl" class="mini-num" min="0" placeholder="0" readonly
+          style="width:72px;text-align:center;background:#eef4ff;font-weight:bold;color:var(--navy);"> 人。
+      </div>
+    </div>
+
+    <!-- 非補助 -->
+    <div class="field-grid g2">
+      <div>
+        <div class="field-label">非補助人數</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <input class="field-input" type="number" id="non_sub" min="0" placeholder="0" style="width:100px;text-align:center;">
+          <span style="font-size:11.5px;">人</span>
+          <span style="font-size:11px;color:var(--red);font-weight:bold;">（請填入人數，系統將智慧計算並自動扣除非補助金額）</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-end;justify-content:flex-end;">
+        <button class="btn btn-reset" onclick="resetAll()">清除表單</button>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 旅遊方式 -->
+    <div>
+      <div class="field-label" style="margin-bottom:8px;font-size:13px;">
+        旅遊方式
+      </div>
+      <div class="trip-selector">
+        <label class="trip-opt" id="opt-pkg" onclick="selectTrip('pkg')">
+          <input type="radio" name="trip_type" value="pkg">
+          <span class="trip-icon">🚌</span>
+          <span class="trip-name">跟　團</span>
+          <span class="trip-desc">參加旅行社套裝行程</span>
+        </label>
+        <label class="trip-opt" id="opt-free" onclick="selectTrip('free')">
+          <input type="radio" name="trip_type" value="free">
+          <span class="trip-icon">✈️</span>
+          <span class="trip-name">自由行</span>
+          <span class="trip-desc">自行購買機票與住宿</span>
+        </label>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- GAS 設定已移至 ⚙ 系統設定 Modal，此處不顯示 -->
+
+  <div class="card-foot">
+    <span style="font-size:11px;color:#888;">請選擇旅遊方式後繼續</span>
+    <button class="btn nav-next" onclick="goNextP1()">下一步 ›</button>
+  </div>
+</div><!-- /p1 -->
+
+
+<!-- ── 第2頁：機票費用（自由行） ── -->
+<div class="page-card" id="p2">
+  <div class="card-head">
+    <h2>機票費用</h2><span class="page-no">第 2 步 — 自由行</span>
+  </div>
+  <div class="card-body">
+    <div class="fee-note">
+      1. 信用卡外幣消費：請填信用卡帳單金額、如有顯示外幣金額也請填入、如有產生信用卡國外交易服務費也請填入。<br>
+      2. 外幣現金消費：請填外幣金額。<br>
+      3. 若有小數點，請計算小數點第1位四捨五入。
+    </div>
+    <div class="fee-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="fee-title" style="margin:0;">機票費用</div>
+        <button class="btn" id="btn-add-trip"
+          style="background:var(--green);color:#fff;padding:5px 14px;font-size:12px;"
+          onclick="addTrip()">＋ 新增趟次</button>
+      </div>
+      <!-- 趟次卡片容器 -->
+      <div id="trip-cards" class="trip-cards"></div>
+    </div>
+  </div>
+  <div class="card-foot">
+    <button class="btn nav-back" onclick="goBack()">‹ 返回</button>
+    <button class="btn nav-next" onclick="showPage('p3')">下一步：住宿費用 ›</button>
+  </div>
+</div><!-- /p2 -->
+
+
+<!-- ── 第3頁：住宿費用（自由行） ── -->
+<div class="page-card" id="p3">
+  <div class="card-head">
+    <h2>住宿費用</h2><span class="page-no">第 3 步 — 自由行</span>
+  </div>
+  <div class="card-body">
+    <div class="fee-note">
+      1. 請在住宿訂單及收據上方標註數字，下方每張卡片對應一間飯店。<br>
+      2. 信用卡外幣消費：請填信用卡帳單金額、如有顯示外幣金額也請填入、如有產生信用卡國外交易服務費也請填入。<br>
+      3. 外幣現金消費：請填外幣金額。<br>
+      4. 若有小數點，請計算小數點第1位四捨五入。
+    </div>
+    <div class="fee-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="fee-title" style="margin:0;">住宿費用</div>
+        <button class="btn" id="btn-add-hotel"
+          style="background:var(--green);color:#fff;padding:5px 14px;font-size:12px;"
+          onclick="addHotel()">＋ 新增飯店</button>
+      </div>
+      <div id="hotel-cards" class="trip-cards"></div>
+    </div>
+  </div>
+  <div class="card-foot">
+    <button class="btn nav-back" onclick="goBack()">‹ 返回</button>
+    <button class="btn nav-preview" onclick="goPreview()">預覽確認 ›</button>
+  </div>
+</div><!-- /p3 -->
+
+
+<!-- ── 第4頁：團費（跟團） ── -->
+<div class="page-card" id="p4">
+  <div class="card-head">
+    <h2>團費</h2><span class="page-no">第 2 步 — 跟團</span>
+  </div>
+  <div class="card-body">
+    <div class="fee-note">
+      1. 信用卡外幣消費：請填信用卡帳單金額、如有顯示外幣金額也請填入、如有產生信用卡國外交易服務費也請填入。<br>
+      2. 外幣現金消費：請填外幣金額。<br>
+      3. 若有小數點，請計算小數點第1位四捨五入。
+    </div>
+    <div class="fee-section">
+      <div class="fee-title" style="margin-bottom:10px;">團費</div>
+      <div class="trip-card">
+        <div class="trip-card-head"><span>團費資訊</span></div>
+        <div class="trip-card-body">
+          <div class="trip-card-row">
+            <span class="row-label">旅行社名稱</span>
+            <input type="text" id="agency" placeholder="旅行社名稱" style="flex:1;border:none;border-bottom:1.5px solid #b8c8e0;font-family:inherit;font-size:11.5px;background:transparent;padding:2px 3px;outline:none;">
+          </div>
+          <div class="trip-card-row">
+            <span class="row-label">台幣金額 或 台幣信用卡帳單金額</span>
+            <input type="number" id="p_twd" step="0.1" placeholder="台幣金額" oninput="calcAll()">
+          </div>
+          <!-- 是否有非補助人員 -->
+          <div class="trip-card-row" style="align-items:center;">
+            <span class="row-label">是否有非補助人員</span>
+            <label style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin-right:18px;">
+              <input type="radio" name="pkg_nonsub" id="pkg_nonsub_yes" value="yes" onchange="onPkgNonSubChange()"> 有
+            </label>
+            <label style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;">
+              <input type="radio" name="pkg_nonsub" id="pkg_nonsub_no" value="no" onchange="onPkgNonSubChange()" checked> 沒有
+            </label>
+          </div>
+          <!-- 非補助扣除明細（有才顯示） -->
+          <div id="pkg-nonsub-detail" style="display:none;background:#fff8f8;border-radius:6px;margin:2px 0 6px 0;padding:7px 14px;border-left:3px solid #e74c3c;">
+            <div class="trip-card-row" style="margin-bottom:5px;">
+              <span class="row-label" style="color:#666;">非補助人數</span>
+              <span id="pkg_nonsub_count" style="color:#555;font-weight:bold;">0 人</span>
+              <span style="font-size:10.5px;color:#aaa;margin-left:8px;">（自動帶入）</span>
+            </div>
+            <div class="trip-card-row" style="margin-bottom:5px;">
+              <span class="row-label" style="color:#c0392b;">扣除金額（台幣＋手續費）</span>
+              <span id="pkg_deduct" style="color:#c0392b;font-weight:bold;">- 0 元</span>
+            </div>
+            <div class="trip-card-row">
+              <span class="row-label" style="color:#27ae60;font-weight:bold;">補助金額（台幣＋手續費）</span>
+              <span id="pkg_net" style="color:#27ae60;font-size:14px;font-weight:bold;">0 元</span>
+            </div>
+          </div>
+          <div class="trip-card-row">
+            <span class="row-label">備註</span>
+            <input type="text" id="remark" placeholder="備註說明" style="flex:1;border:none;border-bottom:1.5px solid #b8c8e0;font-family:inherit;font-size:11.5px;background:transparent;padding:2px 3px;outline:none;">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-foot">
+    <button class="btn nav-back" onclick="goBack()">‹ 返回</button>
+    <button class="btn nav-preview" onclick="goPreview()">預覽確認 ›</button>
+  </div>
+</div><!-- /p4 -->
+
+
+<!-- ── 預覽確認頁 ── -->
+<div class="page-card" id="p-preview">
+  <div class="card-head">
+    <h2>預覽確認</h2><span class="page-no">最後確認</span>
+  </div>
+  <div class="card-body">
+    <div class="preview-info">
+      請確認以下內容無誤後，點「列印 / 輸出 PDF」輸出正式表單。如需修改請點「返回修改」。
+    </div>
+    <div id="preview-content"></div>
+  </div>
+  <div class="card-foot">
+    <button class="btn nav-back" onclick="goBack()">‹ 返回修改</button>
+    <button class="btn nav-print" onclick="window.print()">列印 / 輸出 PDF</button>
+  </div>
+</div><!-- /p-preview -->
+
+</div><!-- /wizard -->
+
+
+<!-- ════ 列印用完整表格 ════ -->
+<div id="print-area"></div>
+
+
+<!-- ════ 密碼驗證 Modal ════ -->
+<div class="overlay" id="pwd-overlay">
+  <div class="modal" style="width:340px;min-width:0;">
+    <div class="modal-head" style="padding:14px 20px;">
+      <h2 style="font-size:15px;">🔒 系統設定</h2>
+    </div>
+    <div class="modal-body" style="padding:20px 24px 10px;">
+      <div style="font-size:13px;color:#555;margin-bottom:14px;">請輸入管理密碼以繼續</div>
+      <input type="password" id="pwd-input" placeholder="輸入密碼"
+        style="width:100%;border:1.5px solid #c4d0e4;border-radius:6px;padding:8px 12px;
+          font-size:14px;font-family:inherit;outline:none;"
+        onkeydown="if(event.key==='Enter') verifyPwd()"
+        oninput="document.getElementById('pwd-err').style.display='none'">
+      <div id="pwd-err" style="display:none;color:#e74c3c;font-size:12px;margin-top:6px;">密碼錯誤，請重試</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-close-m" onclick="closePwdModal()" style="font-size:13px;padding:8px 18px;">取消</button>
+      <button class="btn" onclick="verifyPwd()"
+        style="background:var(--navy2);color:#fff;font-size:13px;padding:8px 18px;">確認</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 設定選單 Modal ════ -->
+<div class="overlay" id="settings-overlay" onclick="if(event.target===this)closeSettingsMenu()">
+  <div class="modal" style="width:320px;min-width:0;">
+    <div class="modal-head" style="padding:14px 20px;">
+      <h2 style="font-size:15px;">⚙ 系統設定</h2>
+    </div>
+    <div class="modal-body" style="padding:16px 20px;display:flex;flex-direction:column;gap:12px;">
+      <button onclick="closeSettingsMenu();_doOpenEmpModal()"
+        style="padding:14px 16px;font-size:14px;font-weight:bold;background:#f4f6fb;border:1.5px solid #c4d0e4;
+               border-radius:8px;cursor:pointer;text-align:left;font-family:inherit;color:#1e3a5f;
+               display:flex;align-items:center;gap:10px;transition:background .15s;"
+        onmouseover="this.style.background='#dce8f8'" onmouseout="this.style.background='#f4f6fb'">
+        <span style="font-size:20px;">👥</span>
+        <span>員工資料設定<br><small style="font-weight:normal;font-size:11px;color:#888;">新增、修改、刪除員工資料</small></span>
+      </button>
+      <button onclick="closeSettingsMenu();openGASModal()"
+        style="padding:14px 16px;font-size:14px;font-weight:bold;background:#f4f6fb;border:1.5px solid #c4d0e4;
+               border-radius:8px;cursor:pointer;text-align:left;font-family:inherit;color:#1e3a5f;
+               display:flex;align-items:center;gap:10px;transition:background .15s;"
+        onmouseover="this.style.background='#dce8f8'" onmouseout="this.style.background='#f4f6fb'">
+        <span style="font-size:20px;">💱</span>
+        <span>台銀匯率自動查詢設定<br><small style="font-weight:normal;font-size:11px;color:#888;">設定 Google Apps Script 網址</small></span>
+      </button>
+    </div>
+    <div class="modal-foot" style="justify-content:space-between;">
+      <button class="btn btn-reset" onclick="logoutSettings()" style="font-size:13px;padding:8px 18px;">登出</button>
+      <button class="btn btn-close-m" onclick="closeSettingsMenu()" style="font-size:13px;padding:8px 18px;">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ GAS 設定 Modal ════ -->
+<div class="overlay" id="gas-overlay" onclick="if(event.target===this)closeGASModal()">
+  <div class="modal" style="width:480px;min-width:0;">
+    <div class="modal-head" style="padding:14px 20px;">
+      <h2 style="font-size:15px;">💱 台銀匯率自動查詢設定</h2>
+    </div>
+    <div class="modal-body" style="padding:20px 24px;">
+      <div style="font-size:12.5px;color:#444;margin-bottom:12px;line-height:1.7;">
+        需部署 Google Apps Script 作為匯率查詢代理，設定一次後永久有效。<br>
+        尚未設定？<a href="https://script.google.com" target="_blank" style="color:var(--navy2);">開啟 Google Apps Script ↗</a>
+      </div>
+      <div style="font-size:12px;color:#555;margin-bottom:6px;font-weight:bold;">GAS 網址</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="gas-proxy-inp"
+          style="flex:1;min-width:0;border:1px solid #b0c8e8;border-radius:5px;padding:7px 10px;font-size:11.5px;font-family:monospace;"
+          placeholder="https://script.google.com/macros/s/xxxxx/exec">
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#888;">貼上 GAS 部署後的「網頁應用程式」網址</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-close-m" onclick="closeGASModal();openSettingsMenu()" style="font-size:13px;padding:8px 18px;">← 返回</button>
+      <button class="btn" onclick="saveGASProxy()" style="background:var(--navy2);color:#fff;font-size:13px;padding:8px 18px;">儲存設定</button>
+      <span id="gas-proxy-status" style="font-size:11px;margin-left:4px;"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 員工管理 Modal ════ -->
+<div class="overlay" id="emp-overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>員工資料管理</h2>
+      <small style="opacity:.75;">資料儲存於瀏覽器，關閉後仍保留</small>
+    </div>
+    <div class="modal-body">
+      <div class="add-row">
+        <input type="text" id="new-id"   placeholder="工號（必填）" maxlength="20">
+        <input type="text" id="new-name" placeholder="姓名（必填）" maxlength="20">
+        <input type="text" id="new-dept" placeholder="部門"        maxlength="50">
+        <input type="text" id="new-unit" placeholder="單位"        maxlength="50">
+        <button class="btn btn-sm btn-add" onclick="addEmployee()">新增</button>
+      </div>
+      <table class="emp-table">
+        <thead><tr>
+          <th style="width:15%;cursor:pointer;user-select:none;" onclick="sortEmp('id')"   id="th-id">工號 <span id="sort-id"></span></th>
+          <th style="width:15%;cursor:pointer;user-select:none;" onclick="sortEmp('name')" id="th-name">姓名 <span id="sort-name"></span></th>
+          <th style="width:30%;cursor:pointer;user-select:none;" onclick="sortEmp('dept')" id="th-dept">部門 <span id="sort-dept"></span></th>
+          <th style="width:30%;cursor:pointer;user-select:none;" onclick="sortEmp('unit')" id="th-unit">單位 <span id="sort-unit"></span></th>
+          <th style="width:10%">操作</th>
+        </tr></thead>
+        <tbody id="emp-tbody"></tbody>
+      </table>
+      <div id="emp-empty">尚無員工資料，請點「新增」開始建立</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-sm btn-close-m" onclick="closeEmpModal();openSettingsMenu()">← 返回</button>
+      <button class="btn btn-sm btn-close-m" onclick="closeEmpModal()">關閉</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════ JavaScript ════ -->
+<script>
+/* ── 員工資料 ── */
+const EMP_KEY = 'emp_data_real_v2';
+const DEFAULT_EMP = [
+  {"id": "Y201807001", "name": "徐琮裕", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y201807002", "name": "楊涵淵", "dept": "YBU001事業1部", "unit": "YBU001C客戶服務課"},
+  {"id": "Y201904019", "name": "洪秋美", "dept": "YBU001事業1部", "unit": "YBU001GWeb平台開發課"},
+  {"id": "Y201807006", "name": "姚閔智", "dept": "YMKT01行銷部", "unit": "YMKT01行銷部"},
+  {"id": "Y202303002", "name": "張芷菱", "dept": "YMKT01行銷部", "unit": "YMKT01A品牌行銷課"},
+  {"id": "Y201808004", "name": "卓緯倫", "dept": "YDIT01智能資料部", "unit": "YDIT01智能資料部"},
+  {"id": "Y201808005", "name": "曾柏儒", "dept": "YMKT01行銷部", "unit": "YMKT01A品牌行銷課"},
+  {"id": "Y201808006", "name": "吳家榮", "dept": "YBU001事業1部", "unit": "YBU001事業1部"},
+  {"id": "Y201808007", "name": "邱于芳", "dept": "YBU001事業1部", "unit": "YBU001事業1部"},
+  {"id": "Y201808008", "name": "吳冠緯", "dept": "YBU001事業1部", "unit": "YBU001B機率課"},
+  {"id": "Y201809002", "name": "王巧聆", "dept": "YMKT01行銷部", "unit": "YMKT01行銷部"},
+  {"id": "Y201809003", "name": "吳怡賢", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y202102001", "name": "姚怡如", "dept": "YBU002事業2部", "unit": "YBU002D研發課"},
+  {"id": "Y201901001", "name": "林千筠", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y201901002", "name": "林韋辰", "dept": "YMKT01行銷部", "unit": "YMKT01A品牌行銷課"},
+  {"id": "Y201902001", "name": "吳靜宜", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y201902002", "name": "藍翊軒", "dept": "YMKT01行銷部", "unit": "YMKT01行銷部"},
+  {"id": "Y201903002", "name": "林志澤", "dept": "YIT001資訊技術部", "unit": "YIT001資訊技術部"},
+  {"id": "Y202508003", "name": "廖祐宏", "dept": "YIT001資訊技術部", "unit": "YIT001A資料庫管理課"},
+  {"id": "Y201903005", "name": "喬貞朋", "dept": "YBU004事業4部", "unit": "YBU004事業4部"},
+  {"id": "Y201903006", "name": "張嘉恩", "dept": "YBU002事業2部", "unit": "YBU002D研發課"},
+  {"id": "Y201903007", "name": "葉玲汐", "dept": "YMKT01行銷部", "unit": "YMKT01C平面設計課"},
+  {"id": "Y201903008", "name": "吳梓煊", "dept": "YIT001資訊技術部", "unit": "YIT001資訊技術部"},
+  {"id": "Y201904002", "name": "葉耀升", "dept": "YBU002事業2部", "unit": "YBU002F品保課"},
+  {"id": "Y201904003", "name": "朱泓達", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y201904006", "name": "鍾予婕", "dept": "YBU003事業3部", "unit": "YBU003事業3部"},
+  {"id": "Y201904007", "name": "章智凱", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y201904008", "name": "林宜正", "dept": "YIT001資訊技術部", "unit": "YIT001A資料庫管理課"},
+  {"id": "Y201904009", "name": "賴政皜", "dept": "YBU001事業1部", "unit": "YBU001F遊戲後端課"},
+  {"id": "Y202407003", "name": "張智麒", "dept": "YBU001事業1部", "unit": "YBU001P維運工程課"},
+  {"id": "Y201904011", "name": "董維誠", "dept": "YBU002事業2部", "unit": "YBU002D研發課"},
+  {"id": "Y201904012", "name": "陳漢章", "dept": "YBU003事業3部", "unit": "YBU003事業3部"},
+  {"id": "Y201904013", "name": "朱哲緯", "dept": "YBU003事業3部", "unit": "YBU003事業3部"},
+  {"id": "Y201904014", "name": "林志憲", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202003002", "name": "王仁傑", "dept": "YBU002事業2部", "unit": "YBU002E美術課"},
+  {"id": "Y201904016", "name": "劉浩閔", "dept": "YBU004事業4部", "unit": "YBU004事業4部"},
+  {"id": "Y201904018", "name": "林育麒", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y202308005", "name": "張邦慶", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y201904020", "name": "朱書宏", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y201904022", "name": "賴雨陽", "dept": "YBU002事業2部", "unit": "YBU002D研發課"},
+  {"id": "Y201904024", "name": "陳偉哲", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y201904025", "name": "紀富祥", "dept": "YIT001資訊技術部", "unit": "YIT001B雲端技術課"},
+  {"id": "Y202110006", "name": "林冠吟", "dept": "YBU001事業1部", "unit": "YBU001D客戶關係管理課"},
+  {"id": "Y201904028", "name": "郭致昀", "dept": "YBU003事業3部", "unit": "YBU003事業3部"},
+  {"id": "Y201904029", "name": "曾建穎", "dept": "YBU004事業4部", "unit": "YBU004事業4部"},
+  {"id": "Y201904030", "name": "鄞定辰", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y201904031", "name": "吳志軒", "dept": "YBU001事業1部", "unit": "YBU001F遊戲後端課"},
+  {"id": "Y201905001", "name": "張容溱", "dept": "YBU003事業3部", "unit": "YBU003事業3部"},
+  {"id": "Y201905002", "name": "莊文緯", "dept": "YBU004事業4部", "unit": "YBU004事業4部"},
+  {"id": "Y201905003", "name": "吳真慧", "dept": "YBU001事業1部", "unit": "YBU001F遊戲後端課"},
+  {"id": "Y201905004", "name": "徐千雅", "dept": "YBU001事業1部", "unit": "YBU001H效率策進課"},
+  {"id": "Y201905005", "name": "黃其偉", "dept": "YIT001資訊技術部", "unit": "YIT001B雲端技術課"},
+  {"id": "Y201905006", "name": "林淳嫺", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y201906001", "name": "白峻笙", "dept": "YBU001事業1部", "unit": "YBU001事業1部"},
+  {"id": "Y201906002", "name": "吳姿蓉", "dept": "YBU004事業4部", "unit": "YBU004事業4部"},
+  {"id": "Y201907001", "name": "洪瀛華", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y201907002", "name": "林勝駿", "dept": "YBU001事業1部", "unit": "YBU001A企劃課"},
+  {"id": "Y202102002", "name": "束道生", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y201907005", "name": "陳立恩", "dept": "YMKT01行銷部", "unit": "YMKT01A品牌行銷課"},
+  {"id": "Y201907006", "name": "潘紫涵", "dept": "YBU002事業2部", "unit": "YBU002E美術課"},
+  {"id": "Y201908005", "name": "侯名家", "dept": "YBU002事業2部", "unit": "YBU002D研發課"},
+  {"id": "Y201908006", "name": "吳采霖", "dept": "YBU001事業1部", "unit": "YBU001A企劃課"},
+  {"id": "Y201909004", "name": "段品任", "dept": "YDIT01智能資料部", "unit": "YDIT01A資料平台課"},
+  {"id": "Y201911001", "name": "曹家銘", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
+  {"id": "Y201911002", "name": "蔡佳玟", "dept": "YMKT01行銷部", "unit": "YMKT01C平面設計課"},
+  {"id": "Y201912002", "name": "林琨堯", "dept": "YBU004事業4部", "unit": "YBU004事業4部"},
+  {"id": "Y201912003", "name": "曾子冠", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y201912004", "name": "蔡翠月", "dept": "YBU003事業3部", "unit": "YBU003事業3部"},
+  {"id": "Y202001001", "name": "任志鵬", "dept": "YIT001資訊技術部", "unit": "YIT001A資料庫管理課"},
+  {"id": "Y202001002", "name": "張義宏", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y202001003", "name": "莊珮鷹", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y202002001", "name": "黃芷涵", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y202002002", "name": "吳婉婷", "dept": "YBU001事業1部", "unit": "YBU001J美術設計課"},
+  {"id": "Y202003001", "name": "戴愷杰", "dept": "YBU002事業2部", "unit": "YBU002F品保課"},
+  {"id": "Y201904015", "name": "賴少華", "dept": "YBU001事業1部", "unit": "YBU001J美術設計課"},
+  {"id": "Y202003003", "name": "黃少彥", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
+  {"id": "Y202004001", "name": "謝佩芝", "dept": "YBU001事業1部", "unit": "YBU001GWeb平台開發課"},
+  {"id": "Y202011001", "name": "黃仁佑", "dept": "YBU001事業1部", "unit": "YBU001GWeb平台開發課"},
+  {"id": "Y202004003", "name": "謝垂璜", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y202004005", "name": "曾婉菱", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y202004007", "name": "廖珈棋", "dept": "YBU001事業1部", "unit": "YBU001H效率策進課"},
+  {"id": "Y202004008", "name": "梁家瑋", "dept": "YBU002事業2部", "unit": "YBU002C機率課"},
+  {"id": "Y202005002", "name": "洪士勛", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202005006", "name": "王怡婷", "dept": "YMKT01行銷部", "unit": "YMKT01C平面設計課"},
+  {"id": "Y202007002", "name": "劉承凱", "dept": "YBU001事業1部", "unit": "YBU001P維運工程課"},
+  {"id": "Y202007003", "name": "郭仁傑", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202007005", "name": "陳冠呈", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202007008", "name": "蔡佩君", "dept": "YBU003事業3部", "unit": "YBU003事業3部"},
+  {"id": "Y202008003", "name": "吳任霈", "dept": "YBU002事業2部", "unit": "YBU002D研發課"},
+  {"id": "Y202009002", "name": "李柏賢", "dept": "YBU004事業4部", "unit": "YBU004事業4部"},
+  {"id": "Y202009003", "name": "周昆樟", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
+  {"id": "Y202010002", "name": "塗育杰", "dept": "YBU001事業1部", "unit": "YBU001C客戶服務課"},
+  {"id": "Y202010003", "name": "黃為憲", "dept": "YBU002事業2部", "unit": "YBU002D研發課"},
+  {"id": "Y202305001", "name": "高善群", "dept": "YBU003事業3部", "unit": "YBU003事業3部"},
+  {"id": "Y202011002", "name": "蕭亭韻", "dept": "YBU001事業1部", "unit": "YBU001H效率策進課"},
+  {"id": "Y202011003", "name": "黃雅怡", "dept": "YBU001事業1部", "unit": "YBU001A企劃課"},
+  {"id": "Y202011005", "name": "柯翊承", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y202011007", "name": "蕭楨憶", "dept": "YMKT01行銷部", "unit": "YMKT01A品牌行銷課"},
+  {"id": "Y202012001", "name": "蘇暐傑", "dept": "YBU001事業1部", "unit": "YBU001P維運工程課"},
+  {"id": "Y202101001", "name": "楊雅婷", "dept": "YBU001事業1部", "unit": "YBU001J美術設計課"},
+  {"id": "Y202101004", "name": "林家慶", "dept": "YBU001事業1部", "unit": "YBU001F遊戲後端課"},
+  {"id": "Y202101005", "name": "李郁安", "dept": "YDIT01智能資料部", "unit": "YDIT01BAI 應用課"},
+  {"id": "Y201907003", "name": "魏志銘", "dept": "YIT001資訊技術部", "unit": "YIT001A資料庫管理課"},
+  {"id": "Y201807003", "name": "馮亞澄", "dept": "YBU001事業1部", "unit": "YBU001C客戶服務課"},
+  {"id": "Y202103001", "name": "李怡姍", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y202103002", "name": "鄭郁儒", "dept": "YBU001事業1部", "unit": "YBU001A企劃課"},
+  {"id": "Y202103003", "name": "莊雅婷", "dept": "YBU001事業1部", "unit": "YBU001A企劃課"},
+  {"id": "Y202103004", "name": "黃士欣", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
+  {"id": "Y202103006", "name": "阮韋楷", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
+  {"id": "Y202103008", "name": "陳世華", "dept": "YBU001事業1部", "unit": "YBU001P維運工程課"},
+  {"id": "Y202105001", "name": "賴湡隆", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y202105002", "name": "陳麗安", "dept": "YMKT01行銷部", "unit": "YMKT01C平面設計課"},
+  {"id": "Y202105003", "name": "劉筱蓉", "dept": "YMKT01行銷部", "unit": "YMKT01C平面設計課"},
+  {"id": "Y202106001", "name": "彭紫茵", "dept": "YBU001事業1部", "unit": "YBU001J美術設計課"},
+  {"id": "Y202106003", "name": "何堉詮", "dept": "YMKT01行銷部", "unit": "YMKT01B動態視覺課"},
+  {"id": "Y202106004", "name": "柯至昱", "dept": "YBU004事業4部", "unit": "YBU004事業4部"},
+  {"id": "Y202107002", "name": "吳克來", "dept": "YBU001事業1部", "unit": "YBU001L音樂音效課"},
+  {"id": "Y202108001", "name": "林沂泓", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202109002", "name": "黃柏翔", "dept": "YMKT01行銷部", "unit": "YMKT01A品牌行銷課"},
+  {"id": "Y202109005", "name": "蔡瑋城", "dept": "YBU001事業1部", "unit": "YBU001F遊戲後端課"},
+  {"id": "Y202110001", "name": "朱品蓁", "dept": "YBU001事業1部", "unit": "YBU001H效率策進課"},
+  {"id": "Y202110003", "name": "蘇振輔", "dept": "YBU002事業2部", "unit": "YBU002F品保課"},
+  {"id": "Y202110005", "name": "徐筠皓", "dept": "YIT001資訊技術部", "unit": "YIT001B雲端技術課"},
+  {"id": "Y201808003", "name": "蕭詠耀", "dept": "YBU002事業2部", "unit": "YBU002事業2部"},
+  {"id": "Y202110008", "name": "羅婉僑", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y202111001", "name": "沈怡瑾", "dept": "YMKT01行銷部", "unit": "YMKT01A品牌行銷課"},
+  {"id": "Y202111003", "name": "林億婷", "dept": "YBU001事業1部", "unit": "YBU001D客戶關係管理課"},
+  {"id": "Y202111006", "name": "徐桂茹", "dept": "YBU002事業2部", "unit": "YBU002D研發課"},
+  {"id": "Y202112001", "name": "曾筱軒", "dept": "YBU001事業1部", "unit": "YBU001事業1部"},
+  {"id": "Y202112003", "name": "何宛芃", "dept": "YBU001事業1部", "unit": "YBU001事業1部"},
+  {"id": "Y202112006", "name": "吳亭萱", "dept": "YBU001事業1部", "unit": "YBU001J美術設計課"},
+  {"id": "Y202202001", "name": "葉晉松", "dept": "YBU004事業4部", "unit": "YBU004事業4部"},
+  {"id": "Y202202002", "name": "孫佳淇", "dept": "YBU001事業1部", "unit": "YBU001J美術設計課"},
+  {"id": "Y202202004", "name": "李欣芸", "dept": "YBU002事業2部", "unit": "YBU002F品保課"},
+  {"id": "Y202203001", "name": "葉佳翊", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y202203002", "name": "李龠", "dept": "YMKT01行銷部", "unit": "YMKT01C平面設計課"},
+  {"id": "Y202203004", "name": "蕭婉茹", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y202203005", "name": "呂少甫", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y202203007", "name": "蔡富昇", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y202203010", "name": "賴威丞", "dept": "YBU004事業4部", "unit": "YBU004事業4部"},
+  {"id": "Y202203011", "name": "劉郡庭", "dept": "YMKT01行銷部", "unit": "YMKT01C平面設計課"},
+  {"id": "Y202409001", "name": "張修毓", "dept": "YBU003事業3部", "unit": "YBU003事業3部"},
+  {"id": "Y202204005", "name": "張瑜珊", "dept": "YBU002事業2部", "unit": "YBU002F品保課"},
+  {"id": "Y202204006", "name": "紀翊婷", "dept": "YBU002事業2部", "unit": "YBU002D研發課"},
+  {"id": "Y202204007", "name": "王士宣", "dept": "YBU001事業1部", "unit": "YBU001J美術設計課"},
+  {"id": "Y202204008", "name": "陳健誌", "dept": "YBU001事業1部", "unit": "YBU001GWeb平台開發課"},
+  {"id": "Y202206003", "name": "程麒", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202207002", "name": "張沂傑", "dept": "YBU001事業1部", "unit": "YBU001P維運工程課"},
+  {"id": "Y202207005", "name": "許庭綸", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202208001", "name": "陳傑義", "dept": "YDIT01智能資料部", "unit": "YDIT01BAI 應用課"},
+  {"id": "Y202208003", "name": "陸梓瑄", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
+  {"id": "Y202208004", "name": "林佳穎", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
+  {"id": "Y202212001", "name": "謝旻倩", "dept": "YBU002事業2部", "unit": "YBU002E美術課"},
+  {"id": "Y202212002", "name": "黃千惠", "dept": "YBU001事業1部", "unit": "YBU001J美術設計課"},
+  {"id": "Y202303001", "name": "鄭智忠", "dept": "YBU001事業1部", "unit": "YBU001B機率課"},
+  {"id": "Y201903004", "name": "吳函融", "dept": "YBU001事業1部", "unit": "YBU001事業1部"},
+  {"id": "Y202303005", "name": "莊于葶", "dept": "YMKT01行銷部", "unit": "YMKT01B動態視覺課"},
+  {"id": "Y202304002", "name": "林君侑", "dept": "YBU002事業2部", "unit": "YBU002C機率課"},
+  {"id": "Y202305006", "name": "李培煜", "dept": "YBU003事業3部", "unit": "YBU003事業3部"},
+  {"id": "Y202305002", "name": "黃韻欣", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y202305005", "name": "姚依欣", "dept": "YDIT01智能資料部", "unit": "YDIT01BAI 應用課"},
+  {"id": "Y202204004", "name": "張寧芳", "dept": "YBU001事業1部", "unit": "YBU001C客戶服務課"},
+  {"id": "Y202306001", "name": "何孟璇", "dept": "YMKT01行銷部", "unit": "YMKT01C平面設計課"},
+  {"id": "Y202306004", "name": "張凱惠", "dept": "YBU001事業1部", "unit": "YBU001J美術設計課"},
+  {"id": "Y201904027", "name": "陳思銘", "dept": "YBU002事業2部", "unit": "YBU002D研發課"},
+  {"id": "Y202308001", "name": "詹凱森", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
+  {"id": "Y202308003", "name": "張浚維", "dept": "YBU002事業2部", "unit": "YBU002E美術課"},
+  {"id": "Y202308004", "name": "張榕家", "dept": "YBU001事業1部", "unit": "YBU001GWeb平台開發課"},
+  {"id": "Y202004002", "name": "許雅玲", "dept": "YMKT01行銷部", "unit": "YMKT01C平面設計課"},
+  {"id": "Y202309002", "name": "曾永來", "dept": "YBU001事業1部", "unit": "YBU001B機率課"},
+  {"id": "Y202309003", "name": "江澤亞", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
+  {"id": "Y202309004", "name": "鄭宇翔", "dept": "YBU002事業2部", "unit": "YBU002F品保課"},
+  {"id": "Y202309005", "name": "陳羿玲", "dept": "YBU001事業1部", "unit": "YBU001A企劃課"},
+  {"id": "Y202309006", "name": "馮如瑩", "dept": "YBU001事業1部", "unit": "YBU001F遊戲後端課"},
+  {"id": "Y202309007", "name": "陳禹安", "dept": "YBU002事業2部", "unit": "YBU002E美術課"},
+  {"id": "Y202310001", "name": "林志樺", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202310002", "name": "王韻婷", "dept": "YDIT01智能資料部", "unit": "YDIT01BAI 應用課"},
+  {"id": "Y202310004", "name": "劉於德", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202310006", "name": "趙振傑", "dept": "YMKT01行銷部", "unit": "YMKT01A品牌行銷課"},
+  {"id": "Y202311001", "name": "劉彥明", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
+  {"id": "Y202311003", "name": "郭明潔", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
+  {"id": "Y202312001", "name": "萬書含", "dept": "YBU001事業1部", "unit": "YBU001B機率課"},
+  {"id": "Y202312002", "name": "蔡宗穎", "dept": "YMKT01行銷部", "unit": "YMKT01B動態視覺課"},
+  {"id": "Y202401001", "name": "陳冠昇", "dept": "YIT001資訊技術部", "unit": "YIT001C資訊服務課"},
+  {"id": "Y202403001", "name": "張念慈", "dept": "YBU001事業1部", "unit": "YBU001C客戶服務課"},
+  {"id": "Y202403002", "name": "杜姵", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
+  {"id": "Y202403004", "name": "陳玟穎", "dept": "YBU002事業2部", "unit": "YBU002D研發課"},
+  {"id": "Y202404003", "name": "梁庭彰", "dept": "YBU002事業2部", "unit": "YBU002E美術課"},
+  {"id": "Y202404004", "name": "鄭欣怡", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y202404005", "name": "金志瑋", "dept": "YBU002事業2部", "unit": "YBU002C機率課"},
+  {"id": "Y202404006", "name": "謝泓儒", "dept": "YBU002事業2部", "unit": "YBU002C機率課"},
+  {"id": "Y202404007", "name": "李佳儀", "dept": "YBU001事業1部", "unit": "YBU001H效率策進課"},
+  {"id": "Y202405003", "name": "蔡柏濰", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202406001", "name": "陳哲緯", "dept": "YBU001事業1部", "unit": "YBU001GWeb平台開發課"},
+  {"id": "Y202406002", "name": "林育如", "dept": "YBU001事業1部", "unit": "YBU001F遊戲後端課"},
+  {"id": "Y202406003", "name": "宋囿諭", "dept": "YBU001事業1部", "unit": "YBU001D客戶關係管理課"},
+  {"id": "Y202407002", "name": "陳奕安", "dept": "YBU001事業1部", "unit": "YBU001F遊戲後端課"},
+  {"id": "Y202307002", "name": "曾于和", "dept": "YBU003事業3部", "unit": "YBU003事業3部"},
+  {"id": "Y202407004", "name": "呂昌衡", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
+  {"id": "Y202408001", "name": "黃愈楨", "dept": "YDIT01智能資料部", "unit": "YDIT01BAI 應用課"},
+  {"id": "Y202408002", "name": "黃慈容", "dept": "YBU002事業2部", "unit": "YBU002E美術課"},
+  {"id": "Y201904010", "name": "王佑哲", "dept": "YBU001事業1部", "unit": "YBU001事業1部"},
+  {"id": "Y202412001", "name": "蔡子瑜", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y202501001", "name": "蘇浩維", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202502001", "name": "魯馥瑞", "dept": "YBU001事業1部", "unit": "YBU001L音樂音效課"},
+  {"id": "Y202503001", "name": "温育生", "dept": "YDIT01智能資料部", "unit": "YDIT01A資料平台課"},
+  {"id": "Y202504001", "name": "吳彥頴", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y202504003", "name": "林柏佑", "dept": "YBU002事業2部", "unit": "YBU002E美術課"},
+  {"id": "Y202505002", "name": "張羽婷", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y202506001", "name": "曾佳玲", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y202507001", "name": "林苡綾", "dept": "YBU001事業1部", "unit": "YBU001C客戶服務課"},
+  {"id": "Y202507001", "name": "呂星樺", "dept": "YDIT01智能資料部", "unit": "YDIT01BAI 應用課"},
+  {"id": "Y202507001", "name": "曾俞豪", "dept": "YIT001資訊技術部", "unit": "YIT001C資訊服務課"},
+  {"id": "Y202508001", "name": "周亞琳", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y202508002", "name": "陳柏榮", "dept": "YBU001事業1部", "unit": "YBU001A企劃課"},
+  {"id": "Y201812002", "name": "劉欣枚", "dept": "YBU002事業2部", "unit": "YBU002B企劃課"},
+  {"id": "Y202508004", "name": "陳品儒", "dept": "YBU001事業1部", "unit": "YBU001B機率課"},
+  {"id": "Y202508005", "name": "游玉雲", "dept": "YBU001事業1部", "unit": "YBU001C客戶服務課"},
+  {"id": "Y202508006", "name": "吳佳欣", "dept": "YDIT01智能資料部", "unit": "YDIT01A資料平台課"},
+  {"id": "Y202509001", "name": "林其鈺", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202509002", "name": "姜品薇", "dept": "YMKT01行銷部", "unit": "YMKT01A品牌行銷課"},
+  {"id": "Y202510002", "name": "劉家佑", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202510003", "name": "高國庭", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202511001", "name": "張宸瑄", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
+  {"id": "Y202511002", "name": "湯又瑞", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
+  {"id": "Y202512016", "name": "賴佳欣", "dept": "YBU001事業1部", "unit": "YMKT01A品牌行銷課"},
+  {"id": "Y202601001", "name": "郭婷", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y202601002", "name": "王崇安", "dept": "YDIT01智能資料部", "unit": "YDIT01BAI 應用課"},
+  {"id": "Y202603001", "name": "鄭子翰", "dept": "YBU002事業2部", "unit": "YBU002D研發課"},
+  {"id": "Y202512011", "name": "趙國鈞", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
+  {"id": "Y202512003", "name": "蘇詮哲", "dept": "YBU001事業1部", "unit": "YBU001M任務1課"},
+  {"id": "Y202512001", "name": "黃濠輝", "dept": "YBU001事業1部", "unit": "YBU001M任務1課"},
+  {"id": "Y202512005", "name": "陳柏融", "dept": "YBU001事業1部", "unit": "YBU001N任務2課"},
+  {"id": "Y202512012", "name": "方旋", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
+  {"id": "Y202512006", "name": "許佳華", "dept": "YBU001事業1部", "unit": "YBU001N任務2課"},
+  {"id": "Y202512002", "name": "周博元", "dept": "YBU001事業1部", "unit": "YBU001M任務1課"},
+  {"id": "Y202512013", "name": "張祐齊", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
+  {"id": "Y202512015", "name": "徐國祺", "dept": "YBU001事業1部", "unit": "YBU001M任務1課"},
+  {"id": "Y202512009", "name": "蕭凱文", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
+  {"id": "Y202512014", "name": "林怡叡", "dept": "YBU001事業1部", "unit": "YBU001M任務1課"},
+  {"id": "Y202512007", "name": "鍾嘉翰", "dept": "YBU001事業1部", "unit": "YBU001N任務2課"},
+  {"id": "Y202512004", "name": "郭仲緯", "dept": "YBU001事業1部", "unit": "YBU001N任務2課"},
+  {"id": "Y202512008", "name": "林楷文", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
+  {"id": "Y202512010", "name": "李承翰", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
+  {"id": "Y202109001", "name": "王宏展", "dept": "JBU002事業1部", "unit": "JBU002D研發課"},
+  {"id": "Y202202003", "name": "許順能", "dept": "JBU002事業1部", "unit": "JBU002D研發課"},
+  {"id": "Y202211001", "name": "蕭力維", "dept": "JBU001事業1部", "unit": "JBU001GWeb平台開發課"},
+  {"id": "Y202109006", "name": "段必文", "dept": "JDIT01智能資料部", "unit": "JDIT01BAI 應用課"},
+  {"id": "Y202005003", "name": "陳彥霖", "dept": "JGM001管理部", "unit": "JGM001管理部"},
+  {"id": "Y202111004", "name": "王怡勳", "dept": "JBU001事業1部", "unit": "JBU001C客戶服務課"},
+  {"id": "Y202207003", "name": "卓緯瑄", "dept": "JBU004事業4部", "unit": "JBU004事業4部"}
+];
+
+function loadEmployees(){
+  try{ const r=localStorage.getItem(EMP_KEY); return r?JSON.parse(r):DEFAULT_EMP; }
+  catch(e){ return DEFAULT_EMP; }
+}
+function saveEmployees(l){ localStorage.setItem(EMP_KEY,JSON.stringify(l)); }
+
+/* ── GAS 員工 API（雲端模式）── */
+let _empCache = null;  // null=未載入, []=已載入但空
+
+function getEmployees(){
+  if(_empCache!==null) return _empCache;
+  return loadEmployees();
+}
+
+function fetchGASEmp(params){
+  return new Promise((resolve,reject)=>{
+    if(!GAS_BOT_PROXY){ reject(new Error('GAS未設定')); return; }
+    const cbName='empCb_'+Date.now();
+    const script=document.createElement('script');
+    const timer=setTimeout(()=>{ cleanup(); reject(new Error('連線逾時')); },12000);
+    const cleanup=()=>{ delete window[cbName]; script.remove(); clearTimeout(timer); };
+    window[cbName]=(data)=>{ cleanup(); data.ok?resolve(data):reject(new Error(data.error||'GAS錯誤')); };
+    const qs=Object.entries({...params,callback:cbName,_:Date.now()})
+      .map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
+    script.src=`${GAS_BOT_PROXY}?${qs}`;
+    document.head.appendChild(script);
+  });
+}
+
+function refreshDatalist(){
+  const dl=document.getElementById('emp-datalist');
+  dl.innerHTML=getEmployees().map(e=>
+    `<option value="${e.id}" label="${e.name}（${e.unit||e.dept}）">${e.name}</option>`
+  ).join('');
+}
+
+function onEmpIdInput(val){
+  const match=getEmployees().find(e=>e.id===val.trim());
+  if(match){
+    document.getElementById('name').value=match.name;
+    document.getElementById('dept').value=match.dept;
+    document.getElementById('unit').value=match.unit||'';
+    document.getElementById('emp-matched-badge').classList.add('show');
+    autoFillFromGSheet(val.trim()); // 自動帶入旅遊申請資料
+  } else {
+    document.getElementById('emp-matched-badge').classList.remove('show');
+  }
+}
+
+/* ══════════════════════════════════════════
+   Google Sheets 旅遊申請資料自動帶入
+   ► 使用 Google Visualization JSONP（script tag）
+     完全不受 file:// CORS 限制
+══════════════════════════════════════════ */
+const GSHEET_ID  = '1FCmwlAaRaNPOqZPRWaSiPqKG6lnAaWwdkTQ2rg_QmE8';
+const GSHEET_GID = '1209163089';
+
+/* ── 台銀匯率 GAS Proxy（部署後貼入網址）──
+   設定方式：script.google.com 部署網路應用程式後，將網址貼到下方
+   留空 '' 則略過此方法，改用備用方案                               */
+let GAS_BOT_PROXY = localStorage.getItem('GAS_BOT_PROXY') || '';
+
+let _gsData    = null;
+let _gsHeaders = null;
+let _gsPending = '';
+
+/* ── 取得或建立狀態列 ── */
+function getGSStatusEl(){
+  let el=document.getElementById('gs-status-bar');
+  if(!el){
+    el=document.createElement('div');
+    el.id='gs-status-bar';
+    el.style.cssText='margin-top:8px;font-size:12px;border-radius:7px;padding:7px 14px;display:none;line-height:1.7;';
+    const body=document.querySelector('#p1 .card-body');
+    if(body) body.insertBefore(el,body.firstChild);
+  }
+  return el;
+}
+function gsStatus(type,msg){
+  const el=getGSStatusEl();
+  const st={
+    loading:'background:#fffbe6;border:1px solid #f5c518;color:#7a5c00;',
+    ok:     'background:#e6f9ee;border:1px solid #5cb87a;color:#1a6630;',
+    warn:   'background:#fff3e0;border:1px solid #f5a623;color:#7a4400;',
+    err:    'background:#fdecea;border:1px solid #e57373;color:#8b0000;'
+  };
+  el.style.cssText='margin-top:8px;font-size:12px;border-radius:7px;padding:7px 14px;line-height:1.7;'+st[type];
+  el.innerHTML=msg; el.style.display='block';
+}
+function gsStatusHide(){const el=document.getElementById('gs-status-bar');if(el)el.style.display='none';}
+
+/* ── GViz 日期值 "Date(2026,0,14)" → "2026/1/14" ── */
+function gvizCellStr(cell){
+  if(!cell||cell.v===null||cell.v===undefined) return '';
+  /* 優先用格式化值（f），通常已是可讀字串 */
+  if(cell.f!=null) return String(cell.f);
+  const v=String(cell.v);
+  /* Date(year, month0, day) */
+  const dm=v.match(/^Date\((\d+),(\d+),(\d+)\)$/);
+  if(dm) return `${dm[1]}/${+dm[2]+1}/${dm[3]}`;
+  /* DateTime(year, month0, day, h, m, s) */
+  const dtm=v.match(/^Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)$/);
+  if(dtm){
+    const h=+dtm[4], ap=h<12?'上午':'下午', hh=h===0?12:h>12?h-12:h;
+    return `${dtm[1]}/${+dtm[2]+1}/${dtm[3]} ${ap} ${hh}:${dtm[5].padStart(2,'0')}:${dtm[6].padStart(2,'0')}`;
+  }
+  return v;
+}
+
+/* ── JSONP 透過 Google Visualization API 載入（繞過 CORS）── */
+function loadGSViaGViz(){
+  return new Promise((resolve,reject)=>{
+    const cbName='_gsVizCb_'+Date.now();
+    let script=null;
+    const cleanup=()=>{ try{delete window[cbName];}catch(e){} script?.remove(); };
+
+    const timer=setTimeout(()=>{ cleanup(); reject(new Error('連線逾時 (15s)，請確認網路')); },15000);
+
+    window[cbName]=function(resp){
+      clearTimeout(timer); cleanup();
+      try{
+        if(resp.status==='error'){
+          const msg=(resp.errors||[{}])[0].detailed_message||(resp.errors||[{}])[0].message||'GViz API 錯誤';
+          reject(new Error(msg)); return;
+        }
+        const tbl=resp.table;
+        const headers=tbl.cols.map(c=>c.label||c.id||'');
+        const rows=tbl.rows.map(row=>(row.c||[]).map(cell=>gvizCellStr(cell)));
+        resolve({headers,rows});
+      }catch(e){ reject(e); }
+    };
+
+    script=document.createElement('script');
+    script.src=`https://docs.google.com/spreadsheets/d/${GSHEET_ID}/gviz/tq`+
+               `?gid=${GSHEET_GID}&tqx=out:json;responseHandler:${cbName}&_=${Date.now()}`;
+    script.onerror=()=>{ clearTimeout(timer); cleanup(); reject(new Error('Script 載入失敗（網路或試算表未公開）')); };
+    document.head.appendChild(script);
+  });
+}
+
+/* ── 解析中文時間戳記 → timestamp ── */
+function parseGSTimestamp(ts){
+  if(!ts) return 0;
+  const m=ts.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(上午|下午)\s+(\d{1,2}):(\d{2}):(\d{2})/);
+  if(!m) return 0;
+  let [,y,mo,d,ap,h,mi,sc]=m; h=parseInt(h);
+  if(ap==='下午'&&h!==12) h+=12;
+  if(ap==='上午'&&h===12) h=0;
+  return new Date(+y,+mo-1,+d,h,+mi,+sc).getTime();
+}
+
+/* ── 偵錯：顯示欄位標題 ── */
+function showGSDebugHeaders(){
+  if(!_gsHeaders) return;
+  const mapped=_gsHeaders.map((h,i)=>
+    `<span style="color:#888">[${i}]</span>${h||'(空)'}`).join(' &nbsp;|&nbsp; ');
+  gsStatus('warn',`⚠ 試算表已載入，但找不到符合的工號。<br>
+    <b>欄位標題（供確認欄位順序）：</b><br>
+    <span style="font-size:10.5px;word-break:break-all;">${mapped}</span><br>
+    <button onclick="gsStatusHide()" style="margin-top:4px;font-size:11px;padding:2px 10px;cursor:pointer;">關閉</button>`);
+}
+
+async function loadGSData(){
+  if(_gsData!==null) return _gsData;
+  gsStatus('loading','⏳ 正在從試算表載入旅遊申請資料…');
+  try{
+    const {headers,rows}=await loadGSViaGViz();
+    _gsHeaders=headers;
+    _gsData=rows;
+    console.log('GS 載入成功，標題:',headers,'共',rows.length,'筆');
+    return _gsData;
+  }catch(e){
+    console.error('GS 載入失敗:',e);
+    _gsData=[];
+    gsStatus('err',`❌ 試算表載入失敗：${e.message}<br>
+      <span style="font-size:11px;">請確認：①試算表已設為「任何人可檢視」②網路連線正常</span><br>
+      <button onclick="_gsData=null;autoFillFromGSheet(_gsPending)"
+        style="margin-top:4px;font-size:11px;padding:2px 10px;cursor:pointer;">🔄 重試</button>
+      <button onclick="gsStatusHide()"
+        style="margin-left:6px;font-size:11px;padding:2px 10px;cursor:pointer;">關閉</button>`);
+    return [];
+  }
+}
+
+/* 日期字串 "2026/1/14" → 民國年 {y:115, m:1, d:14} */
+function parseROCDate(str){
+  if(!str) return null;
+  const p=str.trim().split('/');
+  if(p.length<3) return null;
+  const y=parseInt(p[0]), m=parseInt(p[1]), d=parseInt(p[2]);
+  if(isNaN(y)||isNaN(m)||isNaN(d)) return null;
+  return {y:y-1911, m, d};
+}
+
+/* "4天" → "4" */
+function numOnly(s){ return s?s.replace(/[^0-9.]/g,''):''; }
+
+/* ── 依標題自動偵測欄位索引 ── */
+function findColIdx(headers, keywords){
+  for(const kw of keywords){
+    const idx=headers.findIndex(h=>(h||'').replace(/[\s\n]/g,'').includes(kw));
+    if(idx>=0) return idx;
+  }
+  return -1;
+}
+
+async function autoFillFromGSheet(empId){
+  if(!empId) return;
+  _gsPending=empId;
+  gsStatusHide();
+  const rows=await loadGSData();
+  if(!rows.length) return;   // 錯誤已由 loadGSData 顯示
+
+  /* ── 自動偵測欄位位置 ── */
+  const H=_gsHeaders||[];
+  const iTS   = findColIdx(H,['時間戳記','Timestamp']);
+  const iID   = findColIdx(H,['員工編號','工號','EmpID','empid']);
+  const iDS   = findColIdx(H,['出發日期','出發']);
+  const iDE   = findColIdx(H,['回國日期','返國日期','回國','返國']);
+  const iTV   = findColIdx(H,['旅遊假']);
+  const iSP   = findColIdx(H,['特休']);
+  const iOL   = findColIdx(H,['其他假','其他假別']);
+  const iDEST = findColIdx(H,['旅遊國家','旅遊地點','國家']);
+  const iTP   = findColIdx(H,['補助對象人數','補助對象','補助人數']);
+  const iNS   = findColIdx(H,['非補助對象人數','非補助人數','非補助']);
+  const iCH   = findColIdx(H,['子女人數','子女數']);
+
+  console.log('GS 欄位偵測:', {iTS,iID,iDS,iDE,iTV,iSP,iOL,iDEST,iTP,iNS});
+
+  /* 若找不到工號欄，嘗試 fallback 到固定索引 [3] */
+  const empCol = iID>=0 ? iID : 3;
+
+  const matches=rows.filter(r=>(r[empCol]||'').trim()===empId.trim());
+  console.log(`GS: 工號 ${empId} (欄[${empCol}]) 找到 ${matches.length} 筆`);
+
+  if(!matches.length){
+    showGSDebugHeaders();
+    return;
+  }
+
+  /* 取最新申請 */
+  const tsCol = iTS>=0 ? iTS : 0;
+  matches.sort((a,b)=>parseGSTimestamp(b[tsCol]||'')-parseGSTimestamp(a[tsCol]||''));
+  const r=matches[0];
+  console.log('GS 最新筆:', r);
+
+  /* ── 帶入各欄位 ── */
+  const dsCol=iDS>=0?iDS:7;
+  const deCol=iDE>=0?iDE:9;
+  const tvCol=iTV>=0?iTV:11;
+  const spCol=iSP>=0?iSP:12;
+  const olCol=iOL>=0?iOL:13;
+  const destCol=iDEST>=0?iDEST:14;
+  const tpCol=iTP>=0?iTP:16;
+  const nsCol=iNS>=0?iNS:17;
+
+  const ds=parseROCDate(r[dsCol]);
+  if(ds){
+    document.getElementById('ds_y').value=ds.y;
+    document.getElementById('ds_m').value=ds.m;
+    document.getElementById('ds_d').value=ds.d;
+  }
+  const de=parseROCDate(r[deCol]);
+  if(de){
+    document.getElementById('de_y').value=de.y;
+    document.getElementById('de_m').value=de.m;
+    document.getElementById('de_d').value=de.d;
+  }
+  syncDate();
+
+  const tv=numOnly(r[tvCol]||'');
+  const sp=numOnly(r[spCol]||'');
+  const ol=(r[olCol]||'').trim();
+  if(tv) document.getElementById('travel_days').value=tv;
+  if(sp) document.getElementById('special_days').value=sp;
+  if(ol&&ol!=='0') document.getElementById('other_leave').value=ol;
+
+  const dest=(r[destCol]||'').trim();
+  if(dest) document.getElementById('destination').value=dest;
+
+  const tpCol2 = iTP>=0?iTP:16;
+  const nsCol2 = iNS>=0?iNS:17;
+  const chCol  = iCH>=0?iCH:-1;
+  const tpRaw  = (r[tpCol2]||'').trim();
+  const ns     = (r[nsCol2]||'').trim();
+
+  /* ── 補助對象：判斷新格式（文字核取）or 舊格式（純數字）── */
+  function setCk(id,val){ const el=document.getElementById(id); if(el) el.checked=!!val; }
+  const isText = /[^\d\s]/.test(tpRaw);   // 含非數字字元 → 新格式文字
+
+  if(isText){
+    /* 新格式：核取方塊逗號分隔文字 e.g. "本人, 配偶, 配偶父親" */
+    setCk('ck_self', /本人/.test(tpRaw));
+    setCk('ck_sp',   /配偶(?![父母])/.test(tpRaw));
+    /* 子女 */
+    const hasChild = /子女/.test(tpRaw);
+    setCk('ck_ch', hasChild);
+    if(hasChild){
+      /* 優先讀獨立子女人數欄，其次解析文字內數字，預設 1 */
+      const chFromCol = chCol>=0 ? numOnly(r[chCol]||'') : '';
+      const chFromTxt = (tpRaw.match(/子女\s*(\d+)\s*人/)||[])[1]||'';
+      const chVal = chFromCol||chFromTxt||'1';
+      const cntEl=document.getElementById('ch_cnt');
+      if(cntEl) cntEl.value=chVal;
+    }
+    setCk('ck_fa',  /(?<!配偶)父親/.test(tpRaw));
+    setCk('ck_mo',  /(?<!配偶)母親/.test(tpRaw));
+    setCk('ck_spf', /配偶父/.test(tpRaw));
+    setCk('ck_spm', /配偶母/.test(tpRaw));
+  } else {
+    /* 舊格式：純數字，只確保本人勾選 */
+    setCk('ck_self', true);
+  }
+
+  /* 非補助人數 */
+  if(ns!=='') document.getElementById('non_sub').value=ns;
+  calcPpl(); calcAll();
+
+  const tpHint = isText
+    ? `<br>✔ 補助對象已依「${tpRaw}」自動勾選，請確認是否正確。`
+    : (tpRaw&&tpRaw!=='0' ? `<br>⚠ 補助對象（表單記錄 ${tpRaw} 人），表單升級後可自動帶入，目前請手動勾選。` : '');
+  gsStatus('ok',`✔ 已從旅遊申請記錄自動帶入 &nbsp;<span style="font-size:11px;color:#2a6a3f;">（申請時間：${r[tsCol]||'不明'}）</span>${tpHint}
+    <button onclick="gsStatusHide()" style="margin-left:10px;font-size:11px;padding:1px 8px;cursor:pointer;">✕</button>`);
+}
+
+/* ── 員工 Modal ── */
+/* ── 員工管理密碼 ── */
+const EMP_PWD = '0968921166';    // ← 管理密碼（可自行修改）
+let _empUnlocked = false;        // 本次開啟後不需重複輸入
+
+function openEmpModal(){
+  if(_empUnlocked){ _doOpenEmpModal(); return; }
+  document.getElementById('pwd-input').value='';
+  document.getElementById('pwd-err').style.display='none';
+  document.getElementById('pwd-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('pwd-input').focus(),100);
+}
+function closePwdModal(){
+  document.getElementById('pwd-overlay').classList.remove('open');
+}
+function verifyPwd(){
+  const val=document.getElementById('pwd-input').value;
+  if(val===EMP_PWD){
+    _empUnlocked=true;
+    closePwdModal();
+    openSettingsMenu();          /* 密碼正確 → 設定選單 */
+  } else {
+    document.getElementById('pwd-err').style.display='block';
+    document.getElementById('pwd-input').value='';
+    document.getElementById('pwd-input').focus();
+  }
+}
+/* 設定選單 */
+function openSettingsMenu(){ document.getElementById('settings-overlay').classList.add('open'); }
+function closeSettingsMenu(){ document.getElementById('settings-overlay').classList.remove('open'); }
+function logoutSettings(){ _empUnlocked=false; closeSettingsMenu(); }
+/* GAS 設定 Modal */
+function openGASModal(){
+  const inp=document.getElementById('gas-proxy-inp');
+  if(inp) inp.value=GAS_BOT_PROXY||'';
+  document.getElementById('gas-overlay').classList.add('open');
+}
+function closeGASModal(){ document.getElementById('gas-overlay').classList.remove('open'); }
+/* 員工 Modal */
+async function _doOpenEmpModal(){
+  document.getElementById('emp-overlay').classList.add('open');
+  if(!GAS_BOT_PROXY){ renderEmpTable(); return; }
+  // 顯示載入中
+  const tbody=document.getElementById('emp-tbody');
+  const empty=document.getElementById('emp-empty');
+  tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:24px;color:#888;font-size:13px;">⏳ 從雲端載入員工資料中...</td></tr>';
+  empty.style.display='none';
+  try{
+    const data=await fetchGASEmp({action:'getEmps'});
+    _empCache=data.emps||[];
+    // 首次使用：若雲端是空的，提示同步
+    if(_empCache.length===0){
+      const local=loadEmployees();
+      if(local.length>0){
+        tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:20px;">
+          <div style="color:#e67e22;font-size:13px;margin-bottom:12px;">⚠ 雲端尚無員工資料，本機有 ${local.length} 筆</div>
+          <button class="btn" style="background:var(--navy2);color:#fff;font-size:12px;" onclick="syncLocalToGAS()">🔄 一鍵同步至雲端</button>
+        </td></tr>`;
+        return;
+      }
+    }
+    refreshDatalist(); renderEmpTable();
+  }catch(err){
+    _empCache=null;
+    tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:20px;color:#c0392b;font-size:12px;">⚠ 雲端載入失敗，顯示本機資料<br><small>${err.message}</small></td></tr>`;
+    setTimeout(()=>renderEmpTable(), 1500);
+  }
+}
+function closeEmpModal(){ document.getElementById('emp-overlay').classList.remove('open'); }
+function overlayClick(e){ if(e.target===document.getElementById('emp-overlay')) closeEmpModal(); }
+
+let _empSortKey='', _empSortAsc=true;
+
+function sortEmp(key){
+  if(_empSortKey===key){ _empSortAsc=!_empSortAsc; }
+  else { _empSortKey=key; _empSortAsc=true; }
+  renderEmpTable();
+}
+
+function renderEmpTable(){
+  let emps=getEmployees();
+  const tbody=document.getElementById('emp-tbody'), empty=document.getElementById('emp-empty');
+  if(!emps.length){ tbody.innerHTML=''; empty.style.display='block'; updateSortIcons(); return; }
+  empty.style.display='none';
+  // 排序
+  if(_empSortKey){
+    emps=[...emps].sort((a,b)=>{
+      const va=(a[_empSortKey]||'').toLowerCase(), vb=(b[_empSortKey]||'').toLowerCase();
+      return _empSortAsc ? va.localeCompare(vb,'zh-TW') : vb.localeCompare(va,'zh-TW');
+    });
+  }
+  tbody.innerHTML=emps.map((e,i)=>`
+    <tr>
+      <td><input type="text" value="${e.id}"        onchange="updateEmpByKey('${e.id}','id',this.value)"   placeholder="工號"></td>
+      <td><input type="text" value="${e.name}"       onchange="updateEmpByKey('${e.id}','name',this.value)" placeholder="姓名"></td>
+      <td><input type="text" value="${e.dept}"       onchange="updateEmpByKey('${e.id}','dept',this.value)" placeholder="部門"></td>
+      <td><input type="text" value="${e.unit||''}"   onchange="updateEmpByKey('${e.id}','unit',this.value)" placeholder="單位"></td>
+      <td style="text-align:center"><button class="btn btn-sm btn-del" onclick="deleteEmpByKey('${e.id}')">刪除</button></td>
+    </tr>`).join('');
+  updateSortIcons();
+}
+
+function updateSortIcons(){
+  ['id','name','dept','unit'].forEach(k=>{
+    const el=document.getElementById(`sort-${k}`);
+    if(!el) return;
+    el.textContent = _empSortKey===k ? (_empSortAsc?'▲':'▼') : '⇅';
+    el.style.fontSize='10px';
+    el.style.color = _empSortKey===k ? 'var(--navy2)' : '#aaa';
+  });
+}
+
+async function updateEmpByKey(id,f,v){
+  v=v.trim();
+  if(GAS_BOT_PROXY){
+    try{ await fetchGASEmp({action:'updateEmp',id,field:f,value:v}); }
+    catch(err){ console.warn('更新失敗',err); }
+  }
+  if(_empCache!==null){ const emp=_empCache.find(e=>e.id===id); if(emp) emp[f]=v; }
+  else { const e=loadEmployees(); const idx=e.findIndex(x=>x.id===id); if(idx>=0){ e[idx][f]=v; saveEmployees(e); } }
+  refreshDatalist();
+}
+
+async function deleteEmpByKey(id){
+  if(!confirm(`確定刪除工號「${id}」？`)) return;
+  if(GAS_BOT_PROXY){
+    try{ await fetchGASEmp({action:'delEmp',id}); }
+    catch(err){ alert('刪除失敗：'+err.message); return; }
+  }
+  if(_empCache!==null) _empCache=_empCache.filter(e=>e.id!==id);
+  else { saveEmployees(loadEmployees().filter(e=>e.id!==id)); }
+  refreshDatalist(); renderEmpTable();
+}
+
+async function addEmployee(){
+  const id=document.getElementById('new-id').value.trim();
+  const name=document.getElementById('new-name').value.trim();
+  const dept=document.getElementById('new-dept').value.trim();
+  const unit=document.getElementById('new-unit').value.trim();
+  if(!id){ alert('請填寫工號'); return; }
+  if(!name){ alert('請填寫姓名'); return; }
+  if(getEmployees().find(e=>e.id===id)){ alert(`工號「${id}」已存在`); return; }
+  const newEmp={id,name,dept:dept||'',unit:unit||''};
+  if(GAS_BOT_PROXY){
+    try{ await fetchGASEmp({action:'addEmp',id,name,dept,unit}); }
+    catch(err){ alert('新增失敗：'+err.message); return; }
+  }
+  if(_empCache!==null) _empCache.push(newEmp);
+  else { const e=loadEmployees(); e.push(newEmp); saveEmployees(e); }
+  refreshDatalist(); renderEmpTable();
+  ['new-id','new-name','new-dept','new-unit'].forEach(x=>document.getElementById(x).value='');
+  document.getElementById('new-id').focus();
+}
+
+/* 首次使用：一鍵同步本機資料至雲端 */
+async function syncLocalToGAS(){
+  const local=loadEmployees();
+  if(!local.length){ alert('本機無資料'); return; }
+  const btn=event.target; btn.disabled=true; btn.textContent='⏳ 同步中...';
+  let ok=0, fail=0;
+  for(const emp of local){
+    try{ await fetchGASEmp({action:'addEmp',id:emp.id,name:emp.name,dept:emp.dept||'',unit:emp.unit||''}); ok++; }
+    catch(e){ fail++; }
+  }
+  alert(`同步完成：成功 ${ok} 筆${fail?'，失敗 '+fail+' 筆（工號重複或網路問題）':''}`);
+  _empCache=null;
+  _doOpenEmpModal();
+}
+function updateEmp(i,f,v){ const e=getEmployees(); if(e[i]){ e[i][f]=v.trim(); saveEmployees(e); refreshDatalist(); } }
+function deleteEmp(i){
+  const e=getEmployees(); if(!confirm(`確定刪除「${e[i]?.name}」？`)) return;
+  e.splice(i,1); saveEmployees(e); refreshDatalist(); renderEmpTable();
+}
+
+/* ══════════════════════════════════════════
+   外幣 / 台灣銀行匯率查詢
+══════════════════════════════════════════ */
+/* 幣別選項 */
+const FX_CURRENCY_OPTIONS = [
+  ['USD','美元'],['HKD','港幣'],['GBP','英鎊'],['AUD','澳幣'],
+  ['CAD','加拿大幣'],['SGD','新加坡幣'],['CHF','瑞士法郎'],['JPY','日圓'],
+  ['ZAR','南非幣'],['SEK','瑞典幣'],['NZD','紐元'],['THB','泰幣'],
+  ['PHP','菲國比索'],['IDR','印尼幣'],['EUR','歐元'],['KRW','韓元'],
+  ['VND','越南盾'],['MYR','馬來幣'],['CNY','人民幣']
+].map(([c,n])=>`<option value="${c}">${c} ${n}</option>`).join('');
+
+/* 外幣切換顯示 */
+function onFxChange(px,i){
+  const yes=document.getElementById(`${px}${i}_fx_yes`)?.checked;
+  document.getElementById(`${px}${i}-fx-detail`).style.display=yes?'':'none';
+  // 外幣→否 時顯示「刷台幣仍有服務費」選項；外幣→是 時隱藏
+  const twdFeeRow=document.getElementById(`${px}${i}-twdfee-row`);
+  if(twdFeeRow) twdFeeRow.style.display=yes?'none':'flex';
+  if(yes){
+    // 切回外幣時，隱藏並清除台幣服務費
+    const wrap=document.getElementById(`${px}${i}-twdfee-wrap`);
+    if(wrap) wrap.style.display='none';
+    const inp=document.getElementById(`${px}${i}_twdfee`);
+    if(inp) inp.value='';
+    const noRad=document.getElementById(`${px}${i}_twdfee_no`);
+    if(noRad) noRad.checked=true;
+  } else {
+    const f=document.getElementById(`${px}${i}_for`);
+    if(f) f.value='';
+  }
+  calcAll();
+}
+
+/* 台幣服務費有/沒有切換 */
+function onTwdFeeToggle(px,i){
+  const yes=document.getElementById(`${px}${i}_twdfee_yes`)?.checked;
+  const wrap=document.getElementById(`${px}${i}-twdfee-wrap`);
+  if(wrap) wrap.style.display=yes?'':'none';
+  if(!yes){
+    const inp=document.getElementById(`${px}${i}_twdfee`);
+    if(inp) inp.value='';
+  }
+  calcAll();
+}
+
+/* 支付方式切換（現金/刷卡） */
+function onPayTypeChange(px,i){
+  const isCash=document.getElementById(`${px}${i}_pay_cash`)?.checked;
+  const isCard=document.getElementById(`${px}${i}_pay_card`)?.checked;
+  const cashEl=document.getElementById(`${px}${i}-cash-detail`);
+  const feeEl =document.getElementById(`${px}${i}-fee-wrap`);
+  if(cashEl) cashEl.style.display=isCash?'':'none';
+  if(feeEl)  feeEl.style.display =isCard?'':'none';
+  if(!isCash){
+    const twdEl=document.getElementById(`${px}${i}_twd`);
+    // 刷卡時不自動帶入台幣（帳單金額手動填）
+  }
+  calcAll();
+}
+
+/* 外幣金額 × 匯率 → 台幣 */
+function calcFx(px,i){
+  const forAmt=parseFloat(document.getElementById(`${px}${i}_for`)?.value)||0;
+  const rate=parseFloat(document.getElementById(`${px}${i}_frate`)?.value)||0;
+  const isCash=document.getElementById(`${px}${i}_pay_cash`)?.checked;
+  const twdEl=document.getElementById(`${px}${i}_twd`);
+  if(isCash && forAmt>0 && rate>0 && twdEl) twdEl.value=R1(forAmt*rate);
+  calcAll();
+}
+
+/* 解析 BOT CSV → 匯率
+   台銀 CSV 固定欄序：幣別[0] 現金買入[1] 現金賣出[2] 即期買入[3] 即期賣出[4] … */
+function parseBOTcsv(text, currency, isCash){
+  if(!text) return null;
+  const lines=text.split('\n').filter(l=>l.trim());
+  let rateIdx=-1, startIdx=0;
+
+  /* ── 方法一：以 header 名稱找欄位（UTF-8 正常解碼）*/
+  for(let k=0;k<lines.length;k++){
+    if(lines[k].includes('現金買入')||lines[k].includes('即期買入')){
+      const hdrs=lines[k].split(',');
+      rateIdx=hdrs.findIndex(h=>h.includes(isCash?'現金賣出':'即期賣出'));
+      if(rateIdx>=0){ startIdx=k+1; break; }
+    }
+  }
+
+  /* ── 方法二：位置 fallback（Big5 被誤判為 UTF-8 → header 亂碼）
+        台銀固定欄序：現金賣出=2，即期賣出=4 */
+  if(rateIdx<0){
+    rateIdx = isCash ? 2 : 4;
+    startIdx = 0;
+  }
+
+  /* ── 找幣別行（幣別代碼為 ASCII，不受編碼影響）*/
+  for(let k=startIdx;k<lines.length;k++){
+    const cols=lines[k].split(',');
+    if(cols.length>rateIdx && cols[0] && cols[0].toUpperCase().includes(currency.toUpperCase())){
+      const r=parseFloat(cols[rateIdx]);
+      if(!isNaN(r)&&r>0) return r;
+    }
+  }
+  return null;
+}
+
+/* 解析 BOT 歷史查詢 HTML 頁面 → 匯率 */
+function parseBOTHistoryHTML(html, currency, isCash){
+  try{
+    const parser=new DOMParser();
+    const doc=parser.parseFromString(html,'text/html');
+    const rateType=isCash?'現金賣出':'即期賣出';
+    // 找所有 table
+    const tables=doc.querySelectorAll('table');
+    for(const table of tables){
+      // 取表頭（th 或 thead 內 td）
+      const thEls=Array.from(table.querySelectorAll('th'));
+      const headers=thEls.map(h=>h.textContent.replace(/[\s\r\n]/g,''));
+      let rateColIdx=headers.findIndex(h=>h.includes(rateType));
+      if(rateColIdx<0) continue; // 這張 table 沒有目標欄位，跳過
+      // 找幣別列（td）
+      const rows=table.querySelectorAll('tr');
+      for(const row of rows){
+        const cells=Array.from(row.querySelectorAll('td'));
+        if(cells.length<=rateColIdx) continue;
+        const cellText=cells[0].textContent.replace(/[\s\r\n]/g,'');
+        if(cellText.toUpperCase().includes(currency.toUpperCase())){
+          const valText=cells[rateColIdx].textContent.replace(/[,\s\r\n]/g,'');
+          const val=parseFloat(valText);
+          if(!isNaN(val)&&val>0) return val;
+        }
+      }
+    }
+  }catch(e){}
+  return null;
+}
+
+/* 日期往前推 N 天（YYYYMMDD → YYYYMMDD） */
+function botDateOffset(yyyymmdd, days){
+  const d=new Date(
+    parseInt(yyyymmdd.slice(0,4)),
+    parseInt(yyyymmdd.slice(4,6))-1,
+    parseInt(yyyymmdd.slice(6,8))
+  );
+  d.setDate(d.getDate()-days);
+  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ── GAS Proxy 查詢（最優先，需先部署 Google Apps Script）── */
+function fetchViaGAS(yyyymmdd, currency, isCash){
+  if(!GAS_BOT_PROXY) return Promise.reject(new Error('GAS未設定'));
+  return new Promise((resolve,reject)=>{
+    const cbName='_gasBot_'+Date.now()+'_'+Math.floor(Math.random()*99999);
+    let script=null;
+    const cleanup=()=>{ try{delete window[cbName];}catch(e){} script?.remove(); };
+    const timer=setTimeout(()=>{ cleanup(); reject(new Error('GAS逾時')); },20000);
+    window[cbName]=function(data){
+      clearTimeout(timer); cleanup();
+      if(!data.ok) reject(new Error('GAS: '+data.error));
+      else resolve({rate:data.rate, src:data.src||'today', snapshotDate:data.dataDate||data.snapshotDate||''});
+    };
+    script=document.createElement('script');
+    script.src=`${GAS_BOT_PROXY}?date=${yyyymmdd}&currency=${currency}&cash=${isCash?1:0}&callback=${cbName}&_=${Date.now()}`;
+    script.onerror=()=>{ clearTimeout(timer); cleanup(); reject(new Error('GAS script載入失敗')); };
+    document.head.appendChild(script);
+  });
+}
+
+/* ── GAS Proxy UI ── */
+function saveGASProxy(){
+  const val=(document.getElementById('gas-proxy-inp')?.value||'').trim();
+  GAS_BOT_PROXY=val;
+  localStorage.setItem('GAS_BOT_PROXY',val);
+  const st=document.getElementById('gas-proxy-status');
+  if(st){
+    st.style.color=val?'#27ae60':'#e74c3c';
+    st.textContent=val?'✔ 已儲存':'已清除';
+    setTimeout(()=>{ st.textContent=''; },3000);
+  }
+}
+
+/* ── 備用參考匯率（來源：fawazahmed0/jsDelivr CDN 或 Frankfurter/ECB）
+      allorigins 可抓這些公開 CDN，不像台銀會被擋
+      ⚠ 非台銀官方匯率，僅供參考，需至台銀確認 ── */
+async function fetchRefRate(yyyymmdd, currency){
+  const date=`${yyyymmdd.slice(0,4)}-${yyyymmdd.slice(4,6)}-${yyyymmdd.slice(6,8)}`;
+  const cur=currency.toLowerCase();
+
+  /* ① fawazahmed0 currency-api（每日更新，免費，各主要幣別均有 TWD）*/
+  try{
+    const url=`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/${date}/currencies/${cur}/twd.json`;
+    const text=await fetchViaJSONP(url);
+    if(text){
+      const obj=JSON.parse(text);
+      const r=+obj?.[cur]?.twd;
+      if(r&&!isNaN(r)) return {rate:Math.round(r*1000)/1000, src:'市場匯率（fawazahmed0）'};
+    }
+  }catch(e){}
+
+  /* ② Frankfurter（歐洲央行匯率，日期無資料則用最近一筆）*/
+  try{
+    const url=`https://api.frankfurter.app/${date}?from=${currency}&to=TWD`;
+    const text=await fetchViaJSONP(url);
+    if(text){
+      const obj=JSON.parse(text);
+      const r=+obj?.rates?.TWD;
+      if(r&&!isNaN(r)) return {rate:Math.round(r*1000)/1000, src:'ECB（Frankfurter）'};
+    }
+  }catch(e){}
+
+  return null;
+}
+
+/* ── 開啟台銀歷史查詢新分頁（form POST → _blank，直接顯示結果）── */
+function openBotHistoryWindow(yyyymmdd){
+  const yy=yyyymmdd.slice(0,4),mm=yyyymmdd.slice(4,6),dd=yyyymmdd.slice(6,8);
+  const frm=document.createElement('form');
+  frm.method='POST';
+  frm.action='https://rate.bot.com.tw/xrt/history?Lang=zh-TW';
+  frm.target='_blank';
+  frm.style.display='none';
+  // 台銀表單欄位（常見欄位名稱）
+  [['qDate',`${yy}/${mm}/${dd}`],['Currency','ALL'],['Lang','zh-TW']]
+    .forEach(([n,v])=>{
+      const inp=document.createElement('input');
+      inp.type='hidden'; inp.name=n; inp.value=v;
+      frm.appendChild(inp);
+    });
+  document.body.appendChild(frm);
+  frm.submit();
+  frm.remove();
+}
+
+/* ── JSONP（script tag，繞過 file:// null-origin）── */
+function fetchViaJSONP(url){
+  return new Promise((resolve,reject)=>{
+    const cbName='_botJP_'+Date.now()+'_'+Math.floor(Math.random()*99999);
+    let script=null;
+    const cleanup=()=>{ try{delete window[cbName];}catch(e){} script?.remove(); };
+    const timer=setTimeout(()=>{ cleanup(); reject(new Error('逾時')); },12000);
+    window[cbName]=function(data){
+      clearTimeout(timer); cleanup();
+      const code=data?.status?.http_code;
+      if(code&&code!==200){ reject(new Error(`HTTP ${code}`)); return; }
+      const content=data?.contents;
+      if(!content){ reject(new Error(`無內容(code=${code||'?'})`)); return; }
+      resolve(content);
+    };
+    script=document.createElement('script');
+    script.src=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&callback=${cbName}&_=${Date.now()}`;
+    script.onerror=()=>{ clearTimeout(timer); cleanup(); reject(new Error('script 載入失敗')); };
+    document.head.appendChild(script);
+  });
+}
+
+/* ── 嘗試抓取某日期匯率（回傳 {rate, err}）── */
+async function tryFetchBOTDay(yyyymmdd, currency, isCash){
+  const yy=yyyymmdd.slice(0,4),mm=yyyymmdd.slice(4,6),dd=yyyymmdd.slice(6,8);
+  const csvUrl=`https://rate.bot.com.tw/xrt/flcsv/${yyyymmdd}/day`;
+  const enc=encodeURIComponent(csvUrl);
+  const errs=[];
+
+  /* ① GAS Proxy（最優先，直連台銀伺服器，無 CORS 限制）*/
+  try{
+    const gasRes=await fetchViaGAS(yyyymmdd,currency,isCash);
+    if(gasRes&&gasRes.rate!==null&&!isNaN(gasRes.rate))
+      return {rate:+gasRes.rate, err:null, src:gasRes.src||'today', snapshotDate:gasRes.snapshotDate||''};
+    errs.push('[GAS] 回傳空值');
+  }catch(e){ errs.push('[GAS] '+e.message); }
+
+  /* ② JSONP CSV（allorigins script tag）*/
+  try{
+    const text=await fetchViaJSONP(csvUrl);
+    const rate=parseBOTcsv(text,currency,isCash);
+    if(rate!==null) return {rate,err:null};
+    errs.push(`[JSONP-CSV] 找不到${currency} 預覽:${text.slice(0,50).replace(/\n/g,'↵')}`);
+  }catch(e){ errs.push('[JSONP-CSV] '+e.message); }
+
+  /* ② JSONP 歷史頁（GET+日期參數）*/
+  try{
+    const histUrl=`https://rate.bot.com.tw/xrt/history?Lang=zh-TW&qryDate=${yy}%2F${mm}%2F${dd}`;
+    const text=await fetchViaJSONP(histUrl);
+    const rate=parseBOTHistoryHTML(text,currency,isCash);
+    if(rate!==null) return {rate,err:null};
+    errs.push('[JSONP-歷史頁] 找不到'+currency);
+  }catch(e){ errs.push('[JSONP-歷史頁] '+e.message); }
+
+  /* ③ fetch 備用（從 http:// 開啟時有效）*/
+  for(const c of [
+    {label:'CSV直連',    url:csvUrl,                                          type:'csv'},
+    {label:'corsproxy',  url:`https://corsproxy.io/?url=${enc}`,              type:'csv'},
+    {label:'allorigins', url:`https://api.allorigins.win/raw?url=${enc}`,     type:'csv'},
+  ]){
+    try{
+      const res=await fetch(c.url,{cache:'no-cache',redirect:'follow'});
+      if(!res.ok){ errs.push(`[${c.label}] HTTP ${res.status}`); continue; }
+      const buf=await res.arrayBuffer();
+      let text='';
+      try{text=new TextDecoder('utf-8',{fatal:true}).decode(buf);}
+      catch{text=new TextDecoder('big5').decode(buf);}
+      const rate=parseBOTcsv(text,currency,isCash);
+      if(rate!==null) return {rate,err:null};
+      errs.push(`[${c.label}] 找不到${currency}`);
+    }catch(e){ errs.push(`[${c.label}] ${e.message}`); }
+  }
+  return {rate:null, err:errs.join(' | ')};
+}
+
+/* ── 查詢台灣銀行歷史匯率（最多往前 7 天）── */
+async function fetchBOTRate(px,i){
+  const dateEl=document.getElementById(`${px}${i}_frecdate`);
+  const curEl =document.getElementById(`${px}${i}_fcur`);
+  const lblEl =document.getElementById(`${px}${i}_frate_lbl`);
+  const rateInp=document.getElementById(`${px}${i}_frate`);
+  const isCash=document.getElementById(`${px}${i}_pay_cash`)?.checked;
+  if(!dateEl?.value){ alert('請先填入收據日期'); return; }
+  const currency=curEl?.value||'USD';
+  const baseDate=dateEl.value.replace(/-/g,'');
+
+  lblEl.innerHTML='<span style="color:#888">查詢中…</span>';
+
+  let rate=null, usedDate='', lastErr='', lastSrc='', lastSnapshotDate='', offset=0;
+  while(offset<=7){  /* 最多往前 7 天，跨越長假期 */
+    const tryDate=botDateOffset(baseDate,offset);
+    const d=`${tryDate.slice(0,4)}/${tryDate.slice(4,6)}/${tryDate.slice(6,8)}`;
+    lblEl.innerHTML=`<span style="color:#888">查詢 ${d}…</span>`;
+    const res=await tryFetchBOTDay(tryDate,currency,isCash);
+    if(res.rate!==null){
+      rate=res.rate; usedDate=tryDate; lastSrc=res.src||'';
+      lastSnapshotDate=res.snapshotDate||'';
+      break;
+    }
+    lastErr=res.err||''; offset++;
+  }
+
+  if(rate!==null){
+    const rtype=isCash?'現金賣出':'即期賣出';
+    const dStr=`${usedDate.slice(0,4)}/${usedDate.slice(4,6)}/${usedDate.slice(6,8)}`;
+    const origStr=`${baseDate.slice(0,4)}/${baseDate.slice(4,6)}/${baseDate.slice(6,8)}`;
+    let note='';
+    if(lastSrc==='finmind_hist'||lastSrc==='bot_csv'){
+      /* 台銀官方歷史匯率精確命中 */
+      note=` <span style="color:#27ae60;font-size:10.5px;">✅ 台銀官方（${origStr}）</span>`;
+    } else if(lastSrc==='bot_csv_prev'||lastSrc==='finmind_approx'){
+      /* 非營業日，自動採用前一營業日 */
+      const snapStr=lastSnapshotDate?lastSnapshotDate.replace(/(\d{4})-(\d{2})-(\d{2})/,'$1/$2/$3'):dStr;
+      note=` <span style="color:#27ae60;font-size:10.5px;">✅ ${origStr} 非台銀營業日，已自動採用前一營業日（${snapStr}）匯率</span>`;
+    } else if(false){ /* 已合併至 bot_csv_prev */
+    } else if(lastSrc==='today_fallback'){
+      note=` <span style="color:#e67e22;font-size:10.5px;">⚠ 歷史匯率無法自動取得，已帶入今日匯率，請<a href="https://rate.bot.com.tw/xrt/history?Lang=zh-TW" target="_blank" style="color:#e67e22;">手動確認 ${origStr} 匯率↗</a></span>`;
+    } else if(offset>0){
+      note=` <span style="color:#27ae60;font-size:10.5px;">✅ ${origStr} 非台銀營業日，已自動採用前一營業日（${dStr}）匯率</span>`;
+    }
+    lblEl.innerHTML=`✔ ${rtype}匯率：<b style="color:var(--navy2)">${rate}</b>${note}`;
+    if(rateInp){ rateInp.value=rate; calcFx(px,i); }
+  } else {
+    const yy=baseDate.slice(0,4),mm=baseDate.slice(4,6),dd=baseDate.slice(6,8);
+    const rtype=isCash?'現金賣出':'即期賣出';
+
+    /* 自動開啟台銀查詢分頁（POST form → _blank）*/
+    openBotHistoryWindow(baseDate);
+
+    /* 嘗試備用參考匯率（市場匯率 API）*/
+    lblEl.innerHTML=`<span style="color:#888;font-size:11px;">取得參考匯率中…</span>`;
+    const ref=await fetchRefRate(baseDate,currency);
+
+    if(ref){
+      /* 有備用匯率：先帶入，同時提示需以台銀官方數字確認 */
+      if(rateInp){ rateInp.value=ref.rate; calcFx(px,i); }
+      lblEl.innerHTML=
+        `<span style="color:#e67e22;font-size:11.5px;">⚠ 參考匯率（${ref.src}）：`+
+        `<b style="color:#e67e22;">${ref.rate}</b>　已帶入欄位</span><br>`+
+        `<span style="font-size:10.5px;color:#666;">此為<b>市場匯率，非台銀官方數字</b>。`+
+        `台銀查詢視窗已開啟，請在新分頁確認 `+
+        `<b style="color:var(--navy2)">${currency} ${rtype}</b>（${yy}/${mm}/${dd}）`+
+        `後修正右側匯率欄位。</span>`;
+      if(rateInp){
+        rateInp.style.borderColor='#e67e22';
+        rateInp.style.boxShadow='0 0 0 2px rgba(230,126,34,.2)';
+        rateInp.addEventListener('input',()=>{
+          rateInp.style.borderColor=''; rateInp.style.boxShadow='';
+          calcFx(px,i);
+        },{once:true});
+      }
+    } else {
+      /* 沒有備用匯率：純手動引導 */
+      lblEl.innerHTML=
+        `<span style="color:#c0392b;font-weight:bold;font-size:11.5px;">📋 已開啟台銀查詢視窗 ↗</span><br>`+
+        `<span style="font-size:11px;color:#444;">請在新分頁找 `+
+        `<b style="color:var(--navy2)">${currency}</b> 的 `+
+        `<b style="color:var(--navy2)">${rtype}</b> 欄位（${yy}/${mm}/${dd}），`+
+        `填入右側「匯率」欄位後按 Enter。</span>`;
+      if(rateInp){
+        rateInp.style.borderColor='#e74c3c';
+        rateInp.style.boxShadow='0 0 0 2px rgba(231,76,60,.25)';
+        rateInp.placeholder='← 填入匯率';
+        rateInp.focus();
+        rateInp.addEventListener('input',()=>{
+          rateInp.style.borderColor=''; rateInp.style.boxShadow='';
+          rateInp.placeholder='手動輸入';
+          calcFx(px,i);
+        },{once:true});
+      }
+    }
+  }
+}
+
+/* ── 趟次管理 ── */
+const TRIP_LABELS = ['一','二','三','四'];
+let _tripCount = 1;
+const MAX_TRIPS = 4;
+
+function renderTrips(){
+  const container = document.getElementById('trip-cards');
+  if(!container) return;
+  // 重建所有卡片（保留已輸入值）
+  const savedVals = {};
+  for(let i=1;i<=MAX_TRIPS;i++){
+    savedVals[i]={
+      ow:       document.getElementById(`t${i}_ow`)?.checked||false,
+      rt:       document.getElementById(`t${i}_rt`)?.checked||false,
+      for:      document.getElementById(`t${i}_for`)?.value||'',
+      twd:      document.getElementById(`t${i}_twd`)?.value||'',
+      fee:      document.getElementById(`t${i}_fee`)?.value||'',
+      note:     document.getElementById(`t${i}_note`)?.value||'',
+      nonsub:   document.getElementById(`t${i}_nonsub_yes`)?.checked||false,
+      fxyes:    document.getElementById(`t${i}_fx_yes`)?.checked||false,
+      fcur:     document.getElementById(`t${i}_fcur`)?.value||'USD',
+      fPayCash: document.getElementById(`t${i}_pay_cash`)?.checked||false,
+      fPayCard: document.getElementById(`t${i}_pay_card`)?.checked||false,
+      frecdate: document.getElementById(`t${i}_frecdate`)?.value||'',
+      frate:    document.getElementById(`t${i}_frate`)?.value||'',
+      fratelbl: document.getElementById(`t${i}_frate_lbl`)?.innerHTML||''
+    };
+  }
+  container.innerHTML = '';
+  container.className = 'trip-cards' + (_tripCount>=2?' cols2':'');
+  for(let i=1;i<=_tripCount;i++){
+    const lbl = TRIP_LABELS[i-1];
+    const card = document.createElement('div');
+    card.className = 'trip-card';
+    card.id = `tc${i}`;
+    card.innerHTML = `
+      <div class="trip-card-head">
+        <span>趟次${lbl}</span>
+        ${i>1?`<button class="btn-rm-trip" onclick="removeTrip(${i})">✕ 移除</button>`:''}
+      </div>
+      <div class="trip-card-body">
+        <div class="trip-card-row">
+          <label><input type="checkbox" id="t${i}_ow"> 單程</label>
+          <label style="margin-left:12px;"><input type="checkbox" id="t${i}_rt"> 來回</label>
+        </div>
+        <div class="trip-card-row" style="align-items:center;">
+          <span class="row-label">外幣支付</span>
+          <label style="margin-right:12px;cursor:pointer;"><input type="radio" name="t${i}_fxtype" id="t${i}_fx_yes" onchange="onFxChange('t',${i})"> 是</label>
+          <label style="cursor:pointer;"><input type="radio" name="t${i}_fxtype" id="t${i}_fx_no" checked onchange="onFxChange('t',${i})"> 否</label>
+        </div>
+        <div id="t${i}-fx-detail" style="display:none;">
+          <div class="trip-card-row" style="flex-wrap:wrap;gap:6px;align-items:center;">
+            <span class="row-label" style="white-space:nowrap;">外幣金額 或 外幣信用卡帳單金額</span>
+            <input type="number" id="t${i}_for" step="0.01" placeholder="外幣金額" style="width:110px;" oninput="calcFx('t',${i})">
+            <select id="t${i}_fcur" style="border:1px solid #c4d0e4;border-radius:5px;padding:5px 6px;font-family:inherit;font-size:11.5px;background:#f8faff;" onchange="calcFx('t',${i})">${FX_CURRENCY_OPTIONS}</select>
+            <label style="margin-right:10px;cursor:pointer;white-space:nowrap;font-size:12px;"><input type="radio" name="t${i}_paytype" id="t${i}_pay_cash" onchange="onPayTypeChange('t',${i})"> 現金支付</label>
+            <label style="cursor:pointer;white-space:nowrap;font-size:12px;"><input type="radio" name="t${i}_paytype" id="t${i}_pay_card" onchange="onPayTypeChange('t',${i})"> 刷卡支付</label>
+          </div>
+          <div id="t${i}-cash-detail" style="display:none;padding:2px 0 4px 0;">
+            <div class="trip-card-row" style="flex-wrap:wrap;gap:8px;align-items:center;">
+              <span class="row-label" style="white-space:nowrap;">收據日期</span>
+              <input type="date" id="t${i}_frecdate" style="border:1px solid #c4d0e4;border-radius:5px;padding:4px 7px;font-family:inherit;font-size:12px;">
+              <button type="button" onclick="fetchBOTRate('t',${i})" style="padding:4px 12px;font-size:11.5px;cursor:pointer;background:var(--navy2);color:#fff;border:none;border-radius:5px;font-family:inherit;">自動查詢匯率</button>
+              <a href="https://rate.bot.com.tw/xrt/history?Lang=zh-TW" target="_blank" style="font-size:11.5px;color:var(--navy2);text-decoration:underline;white-space:nowrap;">手動查詢匯率↗</a>
+              匯率&nbsp;<input type="number" id="t${i}_frate" step="0.0001" placeholder="手動輸入" style="width:90px;border:1px solid #c4d0e4;border-radius:5px;padding:4px 7px;font-size:12px;" oninput="calcFx('t',${i})">
+              <div id="t${i}_frate_lbl" style="font-size:11px;margin-top:2px;"></div>
+            </div>
+          </div>
+          <div id="t${i}-fee-wrap" style="display:none;">
+            <div class="trip-card-row">
+              <span class="row-label">信用卡國外交易服務費</span>
+              <input type="number" id="t${i}_fee" step="0.1" placeholder="服務費" oninput="calcAll()">
+            </div>
+          </div>
+        </div>
+        <div class="trip-card-row">
+          <span class="row-label">台幣金額 或 台幣信用卡帳單金額</span>
+          <input type="number" id="t${i}_twd" step="0.1" placeholder="台幣金額" oninput="calcAll()">
+        </div>
+        <div id="t${i}-twdfee-row" class="trip-card-row" style="display:none;align-items:center;">
+          <span class="row-label">刷台幣仍有信用卡國外交易服務費</span>
+          <label style="margin-right:12px;cursor:pointer;"><input type="radio" name="t${i}_twdfeeyn" id="t${i}_twdfee_yes" onchange="onTwdFeeToggle('t',${i})"> 有</label>
+          <label style="cursor:pointer;"><input type="radio" name="t${i}_twdfeeyn" id="t${i}_twdfee_no" checked onchange="onTwdFeeToggle('t',${i})"> 沒有</label>
+        </div>
+        <div id="t${i}-twdfee-wrap" style="display:none;">
+          <div class="trip-card-row">
+            <span class="row-label">信用卡國外交易服務費</span>
+            <input type="number" id="t${i}_twdfee" step="0.1" placeholder="服務費" oninput="calcAll()">
+          </div>
+        </div>
+        <div class="trip-card-row" style="align-items:center;">
+          <span class="row-label">是否有非補助人員</span>
+          <label style="margin-right:12px;cursor:pointer;"><input type="radio" name="t${i}_nonsub" id="t${i}_nonsub_yes" onchange="onTripNonSubChange(${i})"> 有</label>
+          <label style="cursor:pointer;"><input type="radio" name="t${i}_nonsub" id="t${i}_nonsub_no" checked onchange="onTripNonSubChange(${i})"> 沒有</label>
+        </div>
+        <div id="t${i}-nonsub-detail" style="display:none;background:#fff8f8;border-radius:6px;margin:2px 0 6px 0;padding:7px 14px;border-left:3px solid #e74c3c;">
+          <div class="trip-card-row" style="margin-bottom:5px;">
+            <span class="row-label" style="color:#666;">非補助人數</span>
+            <span id="t${i}_nonsub_count" style="color:#c0392b;font-weight:bold;">0 人</span>
+          </div>
+          <div class="trip-card-row" style="margin-bottom:5px;">
+            <span class="row-label" style="color:#c0392b;">扣除金額（台幣＋手續費）</span>
+            <span id="t${i}_deduct" style="color:#c0392b;font-weight:bold;">- 0 元</span>
+          </div>
+          <div class="trip-card-row">
+            <span class="row-label" style="color:#27ae60;font-weight:bold;">補助金額（台幣＋手續費）</span>
+            <span id="t${i}_net" style="color:#27ae60;font-size:14px;font-weight:bold;">0 元</span>
+          </div>
+        </div>
+        <div class="trip-card-row">
+          <span class="row-label">備註</span>
+          <input type="text" id="t${i}_note" placeholder="備註說明" style="flex:1;border:none;border-bottom:1.5px solid #b8c8e0;font-family:inherit;font-size:11.5px;background:transparent;padding:2px 3px;outline:none;">
+        </div>
+      </div>`;
+    container.appendChild(card);
+    // 預設顯示「刷台幣仍有服務費」選項（外幣支付預設為否）
+    const twdFeeRow=document.getElementById(`t${i}-twdfee-row`);
+    if(twdFeeRow) twdFeeRow.style.display='flex';
+    // 還原已輸入值
+    const v = savedVals[i];
+    if(v){
+      document.getElementById(`t${i}_ow`).checked  = v.ow;
+      document.getElementById(`t${i}_rt`).checked  = v.rt;
+      document.getElementById(`t${i}_twd`).value   = v.twd;
+      document.getElementById(`t${i}_fee`).value   = v.fee;
+      document.getElementById(`t${i}_note`).value  = v.note;
+      if(v.fxyes){
+        document.getElementById(`t${i}_fx_yes`).checked=true;
+        document.getElementById(`t${i}-fx-detail`).style.display='';
+        document.getElementById(`t${i}_for`).value=v.for;
+        if(v.fcur) document.getElementById(`t${i}_fcur`).value=v.fcur;
+        if(v.fPayCash){
+          document.getElementById(`t${i}_pay_cash`).checked=true;
+          document.getElementById(`t${i}-cash-detail`).style.display='';
+          if(v.frecdate) document.getElementById(`t${i}_frecdate`).value=v.frecdate;
+          if(v.frate) document.getElementById(`t${i}_frate`).value=v.frate;
+          if(v.fratelbl) document.getElementById(`t${i}_frate_lbl`).innerHTML=v.fratelbl;
+        } else if(v.fPayCard){
+          document.getElementById(`t${i}_pay_card`).checked=true;
+          document.getElementById(`t${i}-fee-wrap`).style.display='';
+        }
+      }
+      if(v.nonsub){
+        document.getElementById(`t${i}_nonsub_yes`).checked=true;
+        document.getElementById(`t${i}-nonsub-detail`).style.display='';
+        const ns=document.getElementById('non_sub')?.value||'0';
+        const ec=document.getElementById(`t${i}_nonsub_count`);
+        if(ec) ec.textContent=`${ns} 人`;
+      }
+    }
+  }
+  // 新增按鈕狀態
+  const btn = document.getElementById('btn-add-trip');
+  if(btn){
+    btn.disabled = _tripCount>=MAX_TRIPS;
+    btn.textContent = _tripCount>=MAX_TRIPS ? '已達上限（4趟）' : '＋ 新增趟次';
+    btn.style.opacity = _tripCount>=MAX_TRIPS ? '.5' : '1';
+  }
+}
+
+function addTrip(){
+  if(_tripCount>=MAX_TRIPS) return;
+  _tripCount++;
+  renderTrips();
+}
+
+function removeTrip(n){
+  // 將 n 之後的資料往前移
+  for(let i=n;i<_tripCount;i++){
+    ['ow','rt'].forEach(f=>{
+      const from=document.getElementById(`t${i+1}_${f}`);
+      const to  =document.getElementById(`t${i}_${f}`);
+      if(from&&to) to.checked=from.checked;
+    });
+    ['for','twd','fee'].forEach(f=>{
+      const from=document.getElementById(`t${i+1}_${f}`);
+      const to  =document.getElementById(`t${i}_${f}`);
+      if(from&&to) to.value=from.value;
+    });
+  }
+  _tripCount--;
+  renderTrips();
+  calcAll();
+}
+
+/* ── 飯店管理 ── */
+let _hotelCount = 1;
+const MAX_HOTELS = 8;
+
+function renderHotels(){
+  const container = document.getElementById('hotel-cards');
+  if(!container) return;
+  // 暫存現有值
+  const saved = {};
+  for(let i=1;i<=MAX_HOTELS;i++){
+    saved[i]={
+      for:      document.getElementById(`h${i}_for`)?.value||'',
+      twd:      document.getElementById(`h${i}_twd`)?.value||'',
+      fee:      document.getElementById(`h${i}_fee`)?.value||'',
+      note:     document.getElementById(`h${i}_note`)?.value||'',
+      nonsub:   document.getElementById(`h${i}_nonsub_yes`)?.checked||false,
+      fxyes:    document.getElementById(`h${i}_fx_yes`)?.checked||false,
+      fcur:     document.getElementById(`h${i}_fcur`)?.value||'USD',
+      fPayCash: document.getElementById(`h${i}_pay_cash`)?.checked||false,
+      fPayCard: document.getElementById(`h${i}_pay_card`)?.checked||false,
+      frecdate: document.getElementById(`h${i}_frecdate`)?.value||'',
+      frate:    document.getElementById(`h${i}_frate`)?.value||'',
+      fratelbl: document.getElementById(`h${i}_frate_lbl`)?.innerHTML||''
+    };
+  }
+  container.innerHTML = '';
+  container.className = 'trip-cards' + (_hotelCount>=2?' cols2':'');
+  for(let i=1;i<=_hotelCount;i++){
+    const card = document.createElement('div');
+    card.className = 'trip-card';
+    card.innerHTML = `
+      <div class="trip-card-head">
+        <span>飯店 ${i}</span>
+        ${i>1?`<button class="btn-rm-trip" onclick="removeHotel(${i})">✕ 移除</button>`:''}
+      </div>
+      <div class="trip-card-body">
+        <div class="trip-card-row" style="align-items:center;">
+          <span class="row-label">外幣支付</span>
+          <label style="margin-right:12px;cursor:pointer;"><input type="radio" name="h${i}_fxtype" id="h${i}_fx_yes" onchange="onFxChange('h',${i})"> 是</label>
+          <label style="cursor:pointer;"><input type="radio" name="h${i}_fxtype" id="h${i}_fx_no" checked onchange="onFxChange('h',${i})"> 否</label>
+        </div>
+        <div id="h${i}-fx-detail" style="display:none;">
+          <div class="trip-card-row" style="flex-wrap:wrap;gap:6px;align-items:center;">
+            <span class="row-label" style="white-space:nowrap;">外幣金額 或 外幣信用卡帳單金額</span>
+            <input type="number" id="h${i}_for" step="0.01" placeholder="外幣金額" style="width:110px;" oninput="calcFx('h',${i})">
+            <select id="h${i}_fcur" style="border:1px solid #c4d0e4;border-radius:5px;padding:5px 6px;font-family:inherit;font-size:11.5px;background:#f8faff;" onchange="calcFx('h',${i})">${FX_CURRENCY_OPTIONS}</select>
+            <label style="margin-right:10px;cursor:pointer;white-space:nowrap;font-size:12px;"><input type="radio" name="h${i}_paytype" id="h${i}_pay_cash" onchange="onPayTypeChange('h',${i})"> 現金支付</label>
+            <label style="cursor:pointer;white-space:nowrap;font-size:12px;"><input type="radio" name="h${i}_paytype" id="h${i}_pay_card" onchange="onPayTypeChange('h',${i})"> 刷卡支付</label>
+          </div>
+          <div id="h${i}-cash-detail" style="display:none;padding:2px 0 4px 0;">
+            <div class="trip-card-row" style="flex-wrap:wrap;gap:8px;align-items:center;">
+              <span class="row-label" style="white-space:nowrap;">收據日期</span>
+              <input type="date" id="h${i}_frecdate" style="border:1px solid #c4d0e4;border-radius:5px;padding:4px 7px;font-family:inherit;font-size:12px;">
+              <button type="button" onclick="fetchBOTRate('h',${i})" style="padding:4px 12px;font-size:11.5px;cursor:pointer;background:var(--navy2);color:#fff;border:none;border-radius:5px;font-family:inherit;">自動查詢匯率</button>
+              <a href="https://rate.bot.com.tw/xrt/history?Lang=zh-TW" target="_blank" style="font-size:11.5px;color:var(--navy2);text-decoration:underline;white-space:nowrap;">手動查詢匯率↗</a>
+              匯率&nbsp;<input type="number" id="h${i}_frate" step="0.0001" placeholder="手動輸入" style="width:90px;border:1px solid #c4d0e4;border-radius:5px;padding:4px 7px;font-size:12px;" oninput="calcFx('h',${i})">
+              <div id="h${i}_frate_lbl" style="font-size:11px;margin-top:2px;"></div>
+            </div>
+          </div>
+          <div id="h${i}-fee-wrap" style="display:none;">
+            <div class="trip-card-row">
+              <span class="row-label">信用卡國外交易服務費</span>
+              <input type="number" id="h${i}_fee" step="0.1" placeholder="服務費" oninput="calcAll()">
+            </div>
+          </div>
+        </div>
+        <div class="trip-card-row">
+          <span class="row-label">台幣金額 或 台幣信用卡帳單金額</span>
+          <input type="number" id="h${i}_twd" step="0.1" placeholder="台幣金額" oninput="calcAll()">
+        </div>
+        <div id="h${i}-twdfee-row" class="trip-card-row" style="display:none;align-items:center;">
+          <span class="row-label">刷台幣仍有信用卡國外交易服務費</span>
+          <label style="margin-right:12px;cursor:pointer;"><input type="radio" name="h${i}_twdfeeyn" id="h${i}_twdfee_yes" onchange="onTwdFeeToggle('h',${i})"> 有</label>
+          <label style="cursor:pointer;"><input type="radio" name="h${i}_twdfeeyn" id="h${i}_twdfee_no" checked onchange="onTwdFeeToggle('h',${i})"> 沒有</label>
+        </div>
+        <div id="h${i}-twdfee-wrap" style="display:none;">
+          <div class="trip-card-row">
+            <span class="row-label">信用卡國外交易服務費</span>
+            <input type="number" id="h${i}_twdfee" step="0.1" placeholder="服務費" oninput="calcAll()">
+          </div>
+        </div>
+        <div class="trip-card-row" style="align-items:center;">
+          <span class="row-label">是否有非補助人員</span>
+          <label style="margin-right:12px;cursor:pointer;"><input type="radio" name="h${i}_nonsub" id="h${i}_nonsub_yes" onchange="onHotelNonSubChange(${i})"> 有</label>
+          <label style="cursor:pointer;"><input type="radio" name="h${i}_nonsub" id="h${i}_nonsub_no" checked onchange="onHotelNonSubChange(${i})"> 沒有</label>
+        </div>
+        <div id="h${i}-nonsub-detail" style="display:none;background:#fff8f8;border-radius:6px;margin:2px 0 6px 0;padding:7px 14px;border-left:3px solid #e74c3c;">
+          <div class="trip-card-row" style="margin-bottom:5px;">
+            <span class="row-label" style="color:#666;">非補助人數</span>
+            <span id="h${i}_nonsub_count" style="color:#c0392b;font-weight:bold;">0 人</span>
+          </div>
+          <div class="trip-card-row" style="margin-bottom:5px;">
+            <span class="row-label" style="color:#c0392b;">扣除金額（台幣＋手續費）</span>
+            <span id="h${i}_deduct" style="color:#c0392b;font-weight:bold;">- 0 元</span>
+          </div>
+          <div class="trip-card-row">
+            <span class="row-label" style="color:#27ae60;font-weight:bold;">補助金額（台幣＋手續費）</span>
+            <span id="h${i}_net" style="color:#27ae60;font-size:14px;font-weight:bold;">0 元</span>
+          </div>
+        </div>
+        <div class="trip-card-row">
+          <span class="row-label">備註</span>
+          <input type="text" id="h${i}_note" placeholder="備註說明" style="flex:1;border:none;border-bottom:1.5px solid #b8c8e0;font-family:inherit;font-size:11.5px;background:transparent;padding:2px 3px;outline:none;">
+        </div>
+      </div>`;
+    container.appendChild(card);
+    // 預設顯示「刷台幣仍有服務費」選項（外幣支付預設為否）
+    const hTwdFeeRow=document.getElementById(`h${i}-twdfee-row`);
+    if(hTwdFeeRow) hTwdFeeRow.style.display='flex';
+    // 還原值
+    document.getElementById(`h${i}_twd`).value  = saved[i].twd;
+    document.getElementById(`h${i}_fee`).value  = saved[i].fee;
+    document.getElementById(`h${i}_note`).value = saved[i].note;
+    if(saved[i].fxyes){
+      document.getElementById(`h${i}_fx_yes`).checked=true;
+      document.getElementById(`h${i}-fx-detail`).style.display='';
+      document.getElementById(`h${i}_for`).value=saved[i].for;
+      if(saved[i].fcur) document.getElementById(`h${i}_fcur`).value=saved[i].fcur;
+      if(saved[i].fPayCash){
+        document.getElementById(`h${i}_pay_cash`).checked=true;
+        document.getElementById(`h${i}-cash-detail`).style.display='';
+        if(saved[i].frecdate) document.getElementById(`h${i}_frecdate`).value=saved[i].frecdate;
+        if(saved[i].frate) document.getElementById(`h${i}_frate`).value=saved[i].frate;
+        if(saved[i].fratelbl) document.getElementById(`h${i}_frate_lbl`).innerHTML=saved[i].fratelbl;
+      } else if(saved[i].fPayCard){
+        document.getElementById(`h${i}_pay_card`).checked=true;
+        document.getElementById(`h${i}-fee-wrap`).style.display='';
+      }
+    }
+    if(saved[i].nonsub){
+      document.getElementById(`h${i}_nonsub_yes`).checked=true;
+      document.getElementById(`h${i}-nonsub-detail`).style.display='';
+      const ns=document.getElementById('non_sub')?.value||'0';
+      const ec=document.getElementById(`h${i}_nonsub_count`);
+      if(ec) ec.textContent=`${ns} 人`;
+    }
+  }
+  // 按鈕狀態
+  const btn = document.getElementById('btn-add-hotel');
+  if(btn){
+    btn.disabled = _hotelCount >= MAX_HOTELS;
+    btn.textContent = _hotelCount >= MAX_HOTELS ? `已達上限（${MAX_HOTELS}間）` : '＋ 新增飯店';
+    btn.style.opacity = _hotelCount >= MAX_HOTELS ? '.5' : '1';
+  }
+}
+
+function addHotel(){
+  if(_hotelCount >= MAX_HOTELS) return;
+  _hotelCount++;
+  renderHotels();
+}
+
+function removeHotel(n){
+  for(let i=n;i<_hotelCount;i++){
+    ['for','twd','fee'].forEach(f=>{
+      const from = document.getElementById(`h${i+1}_${f}`);
+      const to   = document.getElementById(`h${i}_${f}`);
+      if(from && to) to.value = from.value;
+    });
+  }
+  _hotelCount--;
+  renderHotels();
+  calcAll();
+}
+
+/* ── 日期欄位同步（分欄 → 合併字串） ── */
+function syncDate(){
+  const gv = id => document.getElementById(id)?.value || '';
+  const fmt = (y,m,d) => {
+    const yy=gv(y), mm=gv(m), dd=gv(d);
+    return [yy?yy+'年':'', mm?mm+'月':'', dd?dd+'日':''].filter(Boolean).join('');
+  };
+  document.getElementById('date_start').value = fmt('ds_y','ds_m','ds_d');
+  document.getElementById('date_end').value   = fmt('de_y','de_m','de_d');
+}
+
+/* ── 補助對象人數自動加總 ── */
+function calcPpl(){
+  const ck = id => document.getElementById(id)?.checked ? 1 : 0;
+  const childN = parseInt(document.getElementById('ch_cnt')?.value) || 0;
+  const total =
+    ck('ck_self') +
+    ck('ck_sp')   +
+    (document.getElementById('ck_ch')?.checked ? childN : 0) +
+    ck('ck_fa')   +
+    ck('ck_mo')   +
+    ck('ck_spf')  +
+    ck('ck_spm');
+  document.getElementById('tot_ppl').value = total || '';
+}
+
+/* ── 計算 ── */
+const N=id=>{const v=parseFloat(document.getElementById(id)?.value);return isNaN(v)?0:v};
+const R1=v=>Math.round(v*10)/10;
+const FMT=v=>v===0?'':v%1===0?v.toLocaleString('zh-TW'):v.toLocaleString('zh-TW',{minimumFractionDigits:1,maximumFractionDigits:1});
+
+function calcAll(){
+  const totPpl=N('tot_ppl')||0, nonSub=N('non_sub')||0, totalPpl=totPpl+nonSub;
+
+  /* ── 機票：逐趟計算，若有非補助則按比例扣除 ── */
+  window._tripData={};
+  let tkt=0;
+  for(let i=1;i<=4;i++){
+    const twd=N(`t${i}_twd`), fee=N(`t${i}_fee`)+N(`t${i}_twdfee`);
+    const hasNS=document.getElementById(`t${i}_nonsub_yes`)?.checked;
+    if(hasNS && totalPpl>0){
+      const cost=twd+fee;
+      const deduct=R1(cost*nonSub/totalPpl);
+      const net=R1(cost-deduct);
+      const ec=document.getElementById(`t${i}_nonsub_count`);
+      const ed=document.getElementById(`t${i}_deduct`);
+      const en=document.getElementById(`t${i}_net`);
+      if(ec) ec.textContent=`${nonSub} 人`;
+      if(ed) ed.textContent=`- ${FMT(deduct)} 元`;
+      if(en) en.textContent=`${FMT(net)} 元`;
+      window._tripData[i]={hasNS:true,deduct,net};
+      tkt+=net;
+    } else {
+      window._tripData[i]={hasNS:false,deduct:0,net:0};
+      tkt+=twd+fee;
+    }
+  }
+  window._tkt=R1(tkt);
+
+  /* ── 住宿：逐間計算 ── */
+  window._htlData={};
+  let htl=0;
+  for(let i=1;i<=8;i++){
+    const twd=N(`h${i}_twd`), fee=N(`h${i}_fee`)+N(`h${i}_twdfee`);
+    const hasNS=document.getElementById(`h${i}_nonsub_yes`)?.checked;
+    if(hasNS && totalPpl>0){
+      const cost=twd+fee;
+      const deduct=R1(cost*nonSub/totalPpl);
+      const net=R1(cost-deduct);
+      const ec=document.getElementById(`h${i}_nonsub_count`);
+      const ed=document.getElementById(`h${i}_deduct`);
+      const en=document.getElementById(`h${i}_net`);
+      if(ec) ec.textContent=`${nonSub} 人`;
+      if(ed) ed.textContent=`- ${FMT(deduct)} 元`;
+      if(en) en.textContent=`${FMT(net)} 元`;
+      window._htlData[i]={hasNS:true,deduct,net};
+      htl+=net;
+    } else {
+      window._htlData[i]={hasNS:false,deduct:0,net:0};
+      htl+=twd+fee;
+    }
+  }
+  window._htl=R1(htl);
+
+  /* 團費：若有非補助人員，計算扣除後補助金額 */
+  const pTwd=N('p_twd'), pFee=N('p_fee');
+  const hasNS=document.getElementById('pkg_nonsub_yes')?.checked;
+  if(hasNS){
+    const totPpl=N('tot_ppl')||0;
+    const nonSub=N('non_sub')||0;
+    const total=totPpl+nonSub;
+    /* 台幣團費 + 手續費 一起按比例扣除 */
+    const totalCost=pTwd+pFee;
+    const deduct=total>0?R1(totalCost*nonSub/total):0;
+    const net=R1(totalCost-deduct);
+    /* 更新顯示 */
+    const el_c=document.getElementById('pkg_nonsub_count');
+    const el_d=document.getElementById('pkg_deduct');
+    const el_n=document.getElementById('pkg_net');
+    if(el_c) el_c.textContent=`${nonSub} 人`;
+    if(el_d) el_d.textContent=`- ${FMT(deduct)} 元`;
+    if(el_n) el_n.textContent=`${FMT(net)} 元`;
+    window._pkg=net;
+    window._pkg_deduct=deduct;
+    window._pkg_net=net;
+  } else {
+    window._pkg=R1(pTwd+pFee);
+    window._pkg_deduct=0;
+    window._pkg_net=0;
+  }
+}
+
+/* 機票趟次非補助切換 */
+function onTripNonSubChange(i){
+  const hasNS=document.getElementById(`t${i}_nonsub_yes`)?.checked;
+  document.getElementById(`t${i}-nonsub-detail`).style.display=hasNS?'':'none';
+  if(hasNS){
+    const ns=document.getElementById('non_sub')?.value||'0';
+    const el=document.getElementById(`t${i}_nonsub_count`);
+    if(el) el.textContent=`${ns} 人`;
+  }
+  calcAll();
+}
+
+/* 住宿非補助切換 */
+function onHotelNonSubChange(i){
+  const hasNS=document.getElementById(`h${i}_nonsub_yes`)?.checked;
+  document.getElementById(`h${i}-nonsub-detail`).style.display=hasNS?'':'none';
+  if(hasNS){
+    const ns=document.getElementById('non_sub')?.value||'0';
+    const el=document.getElementById(`h${i}_nonsub_count`);
+    if(el) el.textContent=`${ns} 人`;
+  }
+  calcAll();
+}
+
+/* 圍費非補助切換 */
+function onPkgNonSubChange(){
+  const hasNS=document.getElementById('pkg_nonsub_yes').checked;
+  document.getElementById('pkg-nonsub-detail').style.display=hasNS?'':'none';
+  if(hasNS){
+    /* 自動帶入非補助人數 */
+    const ns=document.getElementById('non_sub')?.value||'0';
+    const el=document.getElementById('pkg_nonsub_count');
+    if(el) el.textContent=`${ns} 人`;
+  }
+  calcAll();
+}
+
+/* ── 頁面導覽 ── */
+let _tripType=null, _prevPage=null;
+
+function selectTrip(t){
+  _tripType=t;
+  document.getElementById('opt-pkg').classList.toggle('selected',t==='pkg');
+  document.getElementById('opt-free').classList.toggle('selected',t==='free');
+  // 更新步驟列
+  if(t==='pkg'){
+    document.getElementById('st2').querySelector('.step-label').textContent='團費';
+    document.getElementById('st3').style.display='none';
+    document.getElementById('sl2').style.display='none';
+  } else {
+    document.getElementById('st2').querySelector('.step-label').textContent='機票費用';
+    document.getElementById('st3').style.display='flex';
+    document.getElementById('sl2').style.display='block';
+  }
+}
+
+function showPage(id){
+  document.querySelectorAll('.page-card').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  _prevPage=id;
+  updateSteps(id);
+}
+
+function updateSteps(id){
+  const steps=['st1','st2','st3','st4'];
+  const pageMap={'p1':0,'p2':1,'p4':1,'p3':2,'p-preview':3};
+  const cur=pageMap[id]??0;
+  steps.forEach((s,i)=>{
+    const el=document.getElementById(s); if(!el) return;
+    el.classList.remove('active','done');
+    if(i<cur) el.classList.add('done');
+    else if(i===cur) el.classList.add('active');
+  });
+  ['sl1','sl2','sl3'].forEach((l,i)=>{
+    const el=document.getElementById(l); if(!el) return;
+    el.classList.toggle('done',i<cur);
+  });
+}
+
+function goNextP1(){
+  /* ── 必填驗證（特休、其他假別除外）── */
+  const errs=[];
+
+  const v=id=>( document.getElementById(id)?.value||'' ).trim();
+  const n=id=>parseInt(document.getElementById(id)?.value||'0',10)||0;
+
+  if(!v('empid'))        errs.push('工號');
+  if(!v('name'))         errs.push('姓名');
+  if(!v('dept'))         errs.push('部門');
+  if(!v('unit'))         errs.push('單位');
+  if(!v('ds_y')||!v('ds_m')||!v('ds_d')) errs.push('旅遊日期（出發日）');
+  if(!v('de_y')||!v('de_m')||!v('de_d')) errs.push('旅遊日期（返國日）');
+  if(!v('travel_days') || n('travel_days')<=0) errs.push('旅遊假天數');
+  if(!v('destination')) errs.push('旅遊地點');
+
+  /* 補助對象：至少勾選一個 */
+  const anyPpl=['ck_self','ck_sp','ck_ch','ck_fa','ck_mo','ck_spf','ck_spm']
+    .some(id=>document.getElementById(id)?.checked);
+  if(!anyPpl) errs.push('補助對象人數（請至少勾選一項）');
+
+  if(!_tripType) errs.push('旅遊方式（請選擇跟團或自由行）');
+
+  if(errs.length){
+    alert('以下必填欄位尚未填寫：\n\n• ' + errs.join('\n• '));
+    return;
+  }
+
+  showPage(_tripType==='pkg'?'p4':'p2');
+}
+
+function goBack(){
+  const cur=document.querySelector('.page-card.active')?.id;
+  if(cur==='p2'||cur==='p4') showPage('p1');
+  else if(cur==='p3') showPage('p2');
+  else if(cur==='p-preview'){
+    showPage(_tripType==='pkg'?'p4':'p3');
+  }
+}
+
+function goPreview(){
+  calcAll();
+  buildPreview();
+  showPage('p-preview');
+}
+
+/* ── 預覽建構 ── */
+function getV(id){ return document.getElementById(id)?.value||''; }
+function getBenefits(){
+  const parts=[];
+  if(document.getElementById('ck_self')?.checked) parts.push('本人');
+  if(document.getElementById('ck_sp')?.checked)   parts.push('配偶');
+  if(document.getElementById('ck_ch')?.checked){
+    const n=getV('ch_cnt'); parts.push(`子女${n?'('+n+'人)':''}`);
+  }
+  if(document.getElementById('ck_fa')?.checked)  parts.push('父親');
+  if(document.getElementById('ck_mo')?.checked)  parts.push('母親');
+  if(document.getElementById('ck_spf')?.checked) parts.push('配偶父親');
+  if(document.getElementById('ck_spm')?.checked) parts.push('配偶母親');
+  return parts.join('、')||(parts.length?parts.join('、'):'—');
+}
+
+/* ── 輔助常數 ── */
+const lblSt='background:var(--lbl-bg);color:#2a3550;font-size:11px;text-align:center;border:1px solid var(--bdr);padding:6px 4px;';
+const valSt='border:1px solid var(--bdr);padding:6px 8px;font-size:12px;';
+const subSt='background:var(--sub-bg);font-weight:bold;font-size:12px;color:var(--navy);padding:6px 10px;border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);';
+
+function buildPreview(){
+  const isFree=_tripType==='free';
+  const tkt=window._tkt||0, htl=window._htl||0, pkg=window._pkg||0;
+  const tot=R1(tkt+htl+pkg);
+
+  /* ─ 基本資料列 ─ */
+  let html=`
+  <table style="width:100%;border-collapse:collapse;font-size:11.5px;border:1px solid var(--bdr);">
+    <colgroup>${'<col style="width:6.25%">'.repeat(16)}</colgroup>
+    <!-- 標題 -->
+    <tr><td colspan="16" style="background:var(--navy);color:#fff;text-align:center;font-size:20px;font-weight:bold;padding:12px 8px;letter-spacing:8px;border:none;">115年國外旅遊補助申請單</td></tr>
+    <!-- 工號 / 姓名 -->
+    <tr>
+      <td colspan="2" style="${lblSt}">工　號</td>
+      <td colspan="6" style="${valSt}">${getV('empid')}</td>
+      <td colspan="2" style="${lblSt}">姓　名</td>
+      <td colspan="6" style="${valSt}">${getV('name')}</td>
+    </tr>
+    <!-- 部門 / 單位 -->
+    <tr>
+      <td colspan="2" style="${lblSt}">部　門</td>
+      <td colspan="6" style="${valSt}">${getV('dept')}</td>
+      <td colspan="2" style="${lblSt}">單　位</td>
+      <td colspan="6" style="${valSt}">${getV('unit')}</td>
+    </tr>
+    <!-- 旅遊日期 / 旅遊假 / 特休 -->
+    <tr>
+      <td colspan="2" style="${lblSt};font-size:10px;">旅遊日期<br><span style='font-size:9px;color:#666;'>※出國及回國日期</span></td>
+      <td colspan="6" style="${valSt}">${getV('date_start')} ～ ${getV('date_end')}</td>
+      <td colspan="2" style="${lblSt}">旅遊假</td>
+      <td colspan="2" style="${valSt};text-align:center;">${getV('travel_days')} 天</td>
+      <td colspan="2" style="${lblSt}">特　休</td>
+      <td colspan="2" style="${valSt};text-align:center;">${getV('special_days')} 天</td>
+    </tr>
+    <!-- 旅遊地點 / 其他假別 -->
+    <tr>
+      <td colspan="2" style="${lblSt}">旅遊地點</td>
+      <td colspan="6" style="${valSt}">${getV('destination')}</td>
+      <td colspan="2" style="${lblSt}">其他假別</td>
+      <td colspan="6" style="${valSt}">${getV('other_leave')}</td>
+    </tr>
+    <!-- 補助對象 / 共___人 -->
+    <tr>
+      <td colspan="2" style="${lblSt}">補助對象</td>
+      <td colspan="10" style="${valSt}">${getBenefits()}</td>
+      <td colspan="2" style="${lblSt}">共</td>
+      <td colspan="2" style="${valSt};text-align:center;">${getV('tot_ppl')} 人</td>
+    </tr>
+    <!-- 非補助人數 / 旅遊方式 -->
+    <tr>
+      <td colspan="2" style="${lblSt}">非補助人數</td>
+      <td colspan="6" style="${valSt}">${getV('non_sub')} 人</td>
+      <td colspan="2" style="${lblSt}">旅遊方式</td>
+      <td colspan="6" style="${valSt};font-weight:bold;color:var(--navy);">${isFree?'✦ 自由行':'✦ 跟團'}</td>
+    </tr>
+    <!-- 補助費用 header -->
+    `;
+
+  /* ─ 自由行：機票 + 住宿（逐列顯示）─ */
+  if(isFree){
+    /* 機票費用 */
+    html+=`<tr><td colspan="16" style="${subSt}">▸ 機票費用</td></tr>`;
+    html+=`<tr>
+      <td colspan="2" style="${lblSt}">趟次</td>
+      <td colspan="2" style="${lblSt}">類型</td>
+      <td colspan="6" style="${lblSt};font-size:10px;">台幣金額或台幣信用卡帳單金額</td>
+      <td colspan="6" style="${lblSt};font-size:10px;">外幣金額或外幣信用卡帳單金額</td>
+    </tr>`;
+    for(let i=1;i<=_tripCount;i++){
+      const lbl=TRIP_LABELS[i-1]||i;
+      const ow=document.getElementById(`t${i}_ow`)?.checked;
+      const rt=document.getElementById(`t${i}_rt`)?.checked;
+      const typeStr=rt?'來回':(ow?'單程':'—');
+      const note=getV(`t${i}_note`);
+      const td=window._tripData?.[i]||{};
+      const tFxYes=document.getElementById(`t${i}_fx_yes`)?.checked;
+      const tFor=getV(`t${i}_for`);
+      const tFcur=document.getElementById(`t${i}_fcur`)?.value||'';
+      html+=`<tr>
+        <td colspan="2" style="${lblSt}">趟次${lbl}</td>
+        <td colspan="2" style="${valSt};text-align:center;font-weight:bold;">${typeStr}</td>
+        <td colspan="6" style="${valSt}">${getV(`t${i}_twd`)}</td>
+        <td colspan="6" style="${valSt}">${(tFxYes && tFor)?tFor+' '+tFcur:''}</td>
+      </tr>`;
+      const tFee=getV(`t${i}_fee`)||getV(`t${i}_twdfee`);
+      if(tFee) html+=`<tr>
+        <td colspan="4" style="${lblSt};font-size:10px;">信用卡國外交易服務費</td>
+        <td colspan="6" style="${valSt}">${tFee}</td>
+        <td colspan="6" style="${valSt}"></td>
+      </tr>`;
+      if(td.hasNS){
+        html+=`<tr>
+          <td colspan="4" style="${lblSt};font-size:10px;color:#c0392b;">非補助人數</td>
+          <td colspan="4" style="${valSt};color:#c0392b;">${N('non_sub')} 人</td>
+          <td colspan="4" style="${lblSt};font-size:10px;color:#c0392b;">扣除金額<br>（台幣＋手續費）</td>
+          <td colspan="4" style="${valSt};color:#c0392b;">- ${FMT(td.deduct)} 元</td>
+        </tr>
+        <tr>
+          <td colspan="4" style="${lblSt};font-size:10px;color:#27ae60;font-weight:bold;">補助金額<br>（台幣＋手續費）</td>
+          <td colspan="12" style="${valSt};color:#27ae60;font-weight:bold;font-size:13px;">${FMT(td.net)} 元</td>
+        </tr>`;
+      }
+      if(note) html+=`<tr>
+        <td colspan="2" style="${lblSt}">備註</td>
+        <td colspan="14" style="${valSt}">${note}</td>
+      </tr>`;
+    }
+
+    /* 住宿費用 */
+    html+=`<tr><td colspan="16" style="${subSt}">▸ 住宿費用</td></tr>`;
+    html+=`<tr>
+      <td colspan="3" style="${lblSt}">飯店</td>
+      <td colspan="7" style="${lblSt};font-size:10px;">台幣金額或台幣信用卡帳單金額</td>
+      <td colspan="6" style="${lblSt};font-size:10px;">外幣金額或外幣信用卡帳單金額</td>
+    </tr>`;
+    for(let i=1;i<=_hotelCount;i++){
+      const hnote=getV(`h${i}_note`);
+      const hd=window._htlData?.[i]||{};
+      const hFxYes=document.getElementById(`h${i}_fx_yes`)?.checked;
+      const hFor=getV(`h${i}_for`);
+      const hFcur=document.getElementById(`h${i}_fcur`)?.value||'';
+      html+=`<tr>
+        <td colspan="3" style="${lblSt}">飯店 ${i}</td>
+        <td colspan="7" style="${valSt}">${getV(`h${i}_twd`)}</td>
+        <td colspan="6" style="${valSt}">${(hFxYes && hFor)?hFor+' '+hFcur:''}</td>
+      </tr>`;
+      const hFee=getV(`h${i}_fee`)||getV(`h${i}_twdfee`);
+      if(hFee) html+=`<tr>
+        <td colspan="3" style="${lblSt};font-size:10px;">信用卡國外交易服務費</td>
+        <td colspan="7" style="${valSt}">${hFee}</td>
+        <td colspan="6" style="${valSt}"></td>
+      </tr>`;
+      if(hd.hasNS){
+        html+=`<tr>
+          <td colspan="4" style="${lblSt};font-size:10px;color:#c0392b;">非補助人數</td>
+          <td colspan="4" style="${valSt};color:#c0392b;">${N('non_sub')} 人</td>
+          <td colspan="4" style="${lblSt};font-size:10px;color:#c0392b;">扣除金額<br>（台幣＋手續費）</td>
+          <td colspan="4" style="${valSt};color:#c0392b;">- ${FMT(hd.deduct)} 元</td>
+        </tr>
+        <tr>
+          <td colspan="4" style="${lblSt};font-size:10px;color:#27ae60;font-weight:bold;">補助金額<br>（台幣＋手續費）</td>
+          <td colspan="12" style="${valSt};color:#27ae60;font-weight:bold;font-size:13px;">${FMT(hd.net)} 元</td>
+        </tr>`;
+      }
+      if(hnote) html+=`<tr>
+        <td colspan="3" style="${lblSt}">備註</td>
+        <td colspan="13" style="${valSt}">${hnote}</td>
+      </tr>`;
+    }
+
+  /* ─ 跟團：團費 ─ */
+  } else {
+    html+=`<tr><td colspan="16" style="${subSt}">▸ 團費</td></tr>`;
+    html+=`<tr>
+      <td colspan="3" style="${lblSt}">旅行社名稱</td>
+      <td colspan="13" style="${valSt}">${getV('agency')}</td>
+    </tr>
+    <tr>
+      <td colspan="3" style="${lblSt};font-size:10px;">台幣金額或<br>台幣信用卡帳單金額</td>
+      <td colspan="13" style="${valSt}">${getV('p_twd')}</td>
+    </tr>`;
+
+    const _hasNS=document.getElementById('pkg_nonsub_yes')?.checked;
+    if(_hasNS){
+      const _nonSub=N('non_sub');
+      const _deduct=window._pkg_deduct||0;
+      const _net=window._pkg_net||0;
+      /* Row3: 非補助人數 */
+      html+=`
+    <tr>
+      <td colspan="3" style="${lblSt};font-size:10px;color:#c0392b;">非補助人數</td>
+      <td colspan="13" style="${valSt};color:#c0392b;">${_nonSub} 人</td>
+    </tr>`;
+      /* Row4: 扣除金額(左) | 補助金額(右) */
+      html+=`
+    <tr>
+      <td colspan="3" style="${lblSt};font-size:10px;color:#c0392b;">扣除金額<br>（台幣＋手續費）</td>
+      <td colspan="5" style="${valSt};color:#c0392b;">- ${FMT(_deduct)} 元</td>
+      <td colspan="3" style="${lblSt};font-size:10px;color:#27ae60;font-weight:bold;">補助金額<br>（台幣＋手續費）</td>
+      <td colspan="5" style="${valSt};color:#27ae60;font-weight:bold;font-size:13px;">${FMT(_net)} 元</td>
+    </tr>`;
+    }
+    /* 備註：有填才顯示 */
+    const _pkgRemark=getV('remark');
+    if(_pkgRemark){
+      html+=`
+    <tr>
+      <td colspan="3" style="${lblSt}">備　註</td>
+      <td colspan="13" style="${valSt}">${_pkgRemark}</td>
+    </tr>`;
+    }
+  }
+
+  /* ─ 合計區 ─ */
+  const S_lbl='background:var(--lbl-bg);text-align:center;border:1px solid var(--bdr);border-right:none;font-size:12px;font-weight:bold;color:var(--navy);padding:5px 4px;';
+  const S_val='background:var(--calc-bg);border:1px solid var(--bdr);border-left:none;';
+  const S_num='text-align:right;font-weight:bold;color:var(--navy);padding:5px 10px;border-right:none;';
+  const S_unit='padding:5px 6px;font-weight:bold;';
+  const S_tot='background:#d0e4f7;text-align:center;font-weight:bold;font-size:14px;color:var(--navy);border:1px solid var(--bdr);border-right:none;';
+
+  /* ─ 合計區（左右並排：本次旅遊合計 8欄 ＋ 審核用 8欄）─ */
+  /* 各半欄位: 標籤(2)+值(5)+元(1) = 8 */
+  const SH='border-top:1px solid var(--bdr);';
+  html+=`
+  <!-- ── 標題列（左右並排）── -->
+  <tr>
+    <td colspan="8" style="background:var(--sep-bg);text-align:center;font-weight:bold;font-size:13px;color:var(--navy);padding:6px;letter-spacing:3px;${SH}">本次旅遊合計</td>
+    <td colspan="8" style="background:var(--sep-bg);text-align:center;font-weight:bold;font-size:13px;color:var(--navy);padding:6px;letter-spacing:3px;${SH}border-left:1px solid var(--bdr);">合計（審核用）</td>
+  </tr>`;
+
+  if(isFree){
+    html+=`
+  <!-- 機票行 -->
+  <tr>
+    <td colspan="2" style="${S_lbl}">機　票</td>
+    <td colspan="5" style="${S_val};${S_num}">${FMT(tkt)}</td>
+    <td colspan="1" style="${S_val};${S_unit}">元</td>
+    <td colspan="2" style="${S_lbl};border-left:1px solid var(--bdr);">機　票</td>
+    <td colspan="5" style="${S_val};padding:5px 10px;border-right:none;"></td>
+    <td colspan="1" style="${S_val};${S_unit}">元</td>
+  </tr>
+  <!-- 住宿行 -->
+  <tr>
+    <td colspan="2" style="${S_lbl}">住　宿</td>
+    <td colspan="5" style="${S_val};${S_num}">${FMT(htl)}</td>
+    <td colspan="1" style="${S_val};${S_unit}">元</td>
+    <td colspan="2" style="${S_lbl};border-left:1px solid var(--bdr);">住　宿</td>
+    <td colspan="5" style="${S_val};padding:5px 10px;border-right:none;"></td>
+    <td colspan="1" style="${S_val};${S_unit}">元</td>
+  </tr>`;
+  } else {
+    html+=`
+  <!-- 團費行 -->
+  <tr>
+    <td colspan="2" style="${S_lbl}">團　費</td>
+    <td colspan="5" style="${S_val};${S_num}">${FMT(pkg)}</td>
+    <td colspan="1" style="${S_val};${S_unit}">元</td>
+    <td colspan="2" style="${S_lbl};border-left:1px solid var(--bdr);">團　費</td>
+    <td colspan="5" style="${S_val};padding:5px 10px;border-right:none;"></td>
+    <td colspan="1" style="${S_val};${S_unit}">元</td>
+  </tr>`;
+  }
+
+  html+=`
+  <!-- 總計行 -->
+  <tr>
+    <td colspan="2" style="${S_tot}">總　計</td>
+    <td colspan="5" style="${S_val};${S_num};font-size:14px;">${FMT(tot)}</td>
+    <td colspan="1" style="${S_val};${S_unit}">元</td>
+    <td colspan="2" style="${S_tot};border-left:1px solid var(--bdr);">總　計</td>
+    <td colspan="5" style="${S_val};padding:6px 10px;border-right:none;"></td>
+    <td colspan="1" style="${S_val};${S_unit}">元</td>
+  </tr>
+  </table>`;
+
+  document.getElementById('preview-content').innerHTML=html;
+  // 列印區：移除原始 <table> 標籤與 colgroup，重新包裝為 table.pt
+  const inner=html
+    .replace(/<table[^>]*>/,'')
+    .replace(/<colgroup>[\s\S]*?<\/colgroup>/,'')
+    .replace('</table>','');
+  document.getElementById('print-area').innerHTML=
+    `<table class="pt" style="width:100%;border-collapse:collapse;table-layout:fixed;">` +
+    `<colgroup>${'<col style="width:6.25%">'.repeat(16)}</colgroup>` +
+    inner + `</table>`;
+}
+
+/* ── 重置 ── */
+function resetAll(){
+  if(!confirm('確定清除所有填寫內容？')) return;
+  document.querySelectorAll('input[type="text"],input[type="number"]').forEach(e=>e.value='');
+  document.querySelectorAll('input[type="checkbox"]').forEach(e=>e.checked=false);
+  _tripType=null;
+  document.getElementById('opt-pkg').classList.remove('selected');
+  document.getElementById('opt-free').classList.remove('selected');
+  document.getElementById('emp-matched-badge').classList.remove('show');
+  calcAll();
+  showPage('p1');
+}
+
+/* ── 初始化 ── */
+refreshDatalist();
+calcAll();
+renderTrips();
+renderHotels();
+/* GAS 網址在 openGASModal() 時才還原至輸入欄 */
+</script>
+
+<!-- ════ Google 登入 ════ -->
+<script>
+const GAUTH_KEY   = 'gauth_session';
+const ALLOWED_DOMAIN = 'yile.com.tw';
+const GOOGLE_CLIENT_ID = '799098705424-9c55nqcm46al5nujblppusmktevsdtat.apps.googleusercontent.com';
+
+/* JWT 解碼（支援 UTF-8 中文字） */
+function parseJwt(token){
+  try{
+    const b64 = token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+    const json = decodeURIComponent(
+      atob(b64).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join('')
+    );
+    return JSON.parse(json);
+  }catch(e){ return null; }
+}
+
+/* 登入成功後顯示表單 */
+function onLoginSuccess(user){
+  localStorage.setItem(GAUTH_KEY, JSON.stringify(user));
+  document.getElementById('login-overlay').style.display='none';
+  // 工具列顯示使用者
+  document.getElementById('login-name').textContent = user.name;
+  if(user.picture){
+    document.getElementById('login-avatar').src = user.picture;
+    document.getElementById('login-avatar').style.display='';
+  } else {
+    document.getElementById('login-avatar').style.display='none';
+  }
+  document.getElementById('login-user').style.display='flex';
+}
+
+/* Google 回呼 */
+function handleCredentialResponse(response){
+  const payload = parseJwt(response.credential);
+  if(!payload){ alert('登入失敗，請重試'); return; }
+  const domain = (payload.email||'').split('@')[1];
+  if(domain !== ALLOWED_DOMAIN){
+    document.getElementById('login-error').style.display='block';
+    google.accounts.id.disableAutoSelect();
+    return;
+  }
+  onLoginSuccess({
+    email:   payload.email,
+    name:    payload.name,
+    picture: payload.picture||'',
+    exp:     payload.exp
+  });
+}
+
+/* 登出 */
+function confirmLogout(){
+  if(!confirm(`登出 ${JSON.parse(localStorage.getItem(GAUTH_KEY)||'{}').email || ''} ？`)) return;
+  localStorage.removeItem(GAUTH_KEY);
+  google.accounts.id.disableAutoSelect();
+  location.reload();
+}
+
+/* 初始化 Google Identity Services */
+function initGoogleAuth(){
+  // 先檢查 localStorage 是否有有效 session
+  try{
+    const saved = JSON.parse(localStorage.getItem(GAUTH_KEY)||'null');
+    if(saved && saved.exp > Math.floor(Date.now()/1000)){
+      onLoginSuccess(saved); return;
+    }
+  }catch(e){}
+
+  // 無效或過期 → 顯示登入按鈕
+  google.accounts.id.initialize({
+    client_id:     GOOGLE_CLIENT_ID,
+    callback:      handleCredentialResponse,
+    hosted_domain: ALLOWED_DOMAIN,
+    auto_select:   true
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('google-btn-wrap'),
+    { theme:'outline', size:'large', text:'signin_with', locale:'zh-TW', width:280 }
+  );
+  google.accounts.id.prompt();
+}
+
+/* 等 GSI 腳本載入後執行 */
+window.addEventListener('load', ()=>{
+  if(typeof google !== 'undefined' && google.accounts){
+    initGoogleAuth();
+  } else {
+    const t = setInterval(()=>{
+      if(typeof google !== 'undefined' && google.accounts){
+        clearInterval(t); initGoogleAuth();
+      }
+    }, 200);
+  }
+});
+</script>
+</body>
+</html>
