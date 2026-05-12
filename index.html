@@ -1286,16 +1286,15 @@ async function autoFillFromGSheet(empId){
     /* 新格式：核取方塊逗號分隔文字 e.g. "本人, 配偶, 配偶父親" */
     setCk('ck_self', /本人/.test(tpRaw));
     setCk('ck_sp',   /配偶(?![父母])/.test(tpRaw));
-    /* 子女 */
-    const hasChild = /子女/.test(tpRaw);
+    /* 子女：優先讀獨立「子女人數」欄，其次解析文字內數字 */
+    const chFromCol = chCol>=0 ? numOnly(r[chCol]||'') : '';
+    const chFromTxt = (tpRaw.match(/子女\s*(\d+)\s*人/)||[])[1]||'';
+    const chVal = chFromCol||chFromTxt||'';
+    const hasChild = /子女/.test(tpRaw) || (parseInt(chVal)||0) > 0;
     setCk('ck_ch', hasChild);
     if(hasChild){
-      /* 優先讀獨立子女人數欄，其次解析文字內數字，預設 1 */
-      const chFromCol = chCol>=0 ? numOnly(r[chCol]||'') : '';
-      const chFromTxt = (tpRaw.match(/子女\s*(\d+)\s*人/)||[])[1]||'';
-      const chVal = chFromCol||chFromTxt||'1';
       const cntEl=document.getElementById('ch_cnt');
-      if(cntEl) cntEl.value=chVal;
+      if(cntEl) cntEl.value = chVal||'1';
     }
     setCk('ck_fa',  /(?<!配偶)父親/.test(tpRaw));
     setCk('ck_mo',  /(?<!配偶)母親/.test(tpRaw));
