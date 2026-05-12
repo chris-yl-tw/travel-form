@@ -1054,9 +1054,10 @@ const GSHEET_GID = '1209163089';
    留空 '' 則略過此方法，改用備用方案                               */
 let GAS_BOT_PROXY = localStorage.getItem('GAS_BOT_PROXY') || '';
 
-let _gsData    = null;
-let _gsHeaders = null;
-let _gsPending = '';
+let _gsData     = null;
+let _gsHeaders  = null;
+let _gsColTypes = null;   // GViz 欄型別 e.g. ['string','number',...]
+let _gsPending  = '';
 
 /* ── 取得或建立狀態列 ── */
 function getGSStatusEl(){
@@ -1119,8 +1120,9 @@ function loadGSViaGViz(){
         }
         const tbl=resp.table;
         const headers=tbl.cols.map(c=>c.label||c.id||'');
+        const colTypes=tbl.cols.map(c=>c.type||'string');
         const rows=tbl.rows.map(row=>(row.c||[]).map(cell=>gvizCellStr(cell)));
-        resolve({headers,rows});
+        resolve({headers,colTypes,rows});
       }catch(e){ reject(e); }
     };
 
@@ -1158,10 +1160,11 @@ async function loadGSData(){
   if(_gsData!==null) return _gsData;
   gsStatus('loading','⏳ 正在從試算表載入旅遊申請資料…');
   try{
-    const {headers,rows}=await loadGSViaGViz();
+    const {headers,colTypes,rows}=await loadGSViaGViz();
     _gsHeaders=headers;
+    _gsColTypes=colTypes;
     _gsData=rows;
-    console.log('GS 載入成功，標題:',headers,'共',rows.length,'筆');
+    console.log('GS 載入成功，標題:',headers,'欄型別:',colTypes,'共',rows.length,'筆');
     return _gsData;
   }catch(e){
     console.error('GS 載入失敗:',e);
@@ -1282,6 +1285,9 @@ async function autoFillFromGSheet(empId){
   function setCk(id,val){ const el=document.getElementById(id); if(el) el.checked=!!val; }
   const isText = /[^\d\s]/.test(tpRaw);   // 含非數字字元 → 新格式文字
 
+  /* ── 偵測 GViz 欄型別問題：若 Q 欄被定型為 number，文字值會被截斷成空字串 ── */
+  const qColIsNum = _gsColTypes && tpCol2 >= 0 && (_gsColTypes[tpCol2] === 'number');
+
   if(isText){
     /* 新格式：核取方塊逗號分隔文字 e.g. "本人, 配偶, 配偶父親" */
     setCk('ck_self', /本人/.test(tpRaw));
@@ -1309,9 +1315,18 @@ async function autoFillFromGSheet(empId){
   if(ns!=='') document.getElementById('non_sub').value=ns;
   calcPpl(); calcAll();
 
+  /* ── Q 欄型別警告：若 Q 欄是 number 型且 tpRaw 為空，表示文字被 GViz 截斷 ── */
+  const tpColFmtWarn = (!tpRaw && qColIsNum)
+    ? `<br><span style="color:#c0392b;font-weight:bold;">⚠ 補助對象無法自動帶入</span>：`+
+      `試算表「補助對象人數（Q欄）」格式為<b>數字</b>，新核取方塊文字遭 GViz 截斷。`+
+      `<br>請至試算表選取 <b>Q 欄整欄</b> → 格式 → 數字 → <b>純文字</b>，存檔後重新整理此頁即可。`
+    : '';
+
   const tpHint = isText
     ? `<br>✔ 補助對象已依「${tpRaw}」自動勾選，請確認是否正確。`
-    : (tpRaw&&tpRaw!=='0' ? `<br>⚠ 補助對象（表單記錄 ${tpRaw} 人），表單升級後可自動帶入，目前請手動勾選。` : '');
+    : (tpColFmtWarn || (tpRaw&&tpRaw!=='0'
+        ? `<br>⚠ 補助對象（表單記錄 ${tpRaw} 人），表單升級後可自動帶入，目前請手動勾選。`
+        : ''));
   gsStatus('ok',`✔ 已從旅遊申請記錄自動帶入 &nbsp;<span style="font-size:11px;color:#2a6a3f;">（申請時間：${r[tsCol]||'不明'}）</span>${tpHint}
     <button onclick="gsStatusHide()" style="margin-left:10px;font-size:11px;padding:1px 8px;cursor:pointer;">✕</button>`);
 }
