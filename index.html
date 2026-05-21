@@ -607,7 +607,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
   </div>
   <div class="card-foot">
     <button class="btn nav-back" onclick="goBack()">‹ 返回修改</button>
-    <button class="btn nav-print" onclick="window.print()">列印 / 輸出 PDF</button>
+    <button class="btn nav-print" id="btn-print-save" onclick="doPrintAndSave()">列印 / 輸出 PDF</button>
   </div>
 </div><!-- /p-preview -->
 
@@ -676,20 +676,27 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 <div class="overlay" id="gas-overlay" onclick="if(event.target===this)closeGASModal()">
   <div class="modal" style="width:480px;min-width:0;">
     <div class="modal-head" style="padding:14px 20px;">
-      <h2 style="font-size:15px;">💱 台銀匯率自動查詢設定</h2>
+      <h2 style="font-size:15px;">⚙️ Google Apps Script 設定</h2>
     </div>
     <div class="modal-body" style="padding:20px 24px;">
-      <div style="font-size:12.5px;color:#444;margin-bottom:12px;line-height:1.7;">
-        需部署 Google Apps Script 作為匯率查詢代理，設定一次後永久有效。<br>
+      <div style="font-size:12.5px;color:#444;margin-bottom:14px;line-height:1.7;">
+        需部署 Google Apps Script，設定一次後永久有效。<br>
         尚未設定？<a href="https://script.google.com" target="_blank" style="color:var(--navy2);">開啟 Google Apps Script ↗</a>
       </div>
-      <div style="font-size:12px;color:#555;margin-bottom:6px;font-weight:bold;">GAS 網址</div>
+      <div style="font-size:12px;color:#555;margin-bottom:6px;font-weight:bold;">匯率 / 員工查詢 GAS 網址</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <input type="text" id="gas-proxy-inp"
           style="flex:1;min-width:0;border:1px solid #b0c8e8;border-radius:5px;padding:7px 10px;font-size:11.5px;font-family:monospace;"
           placeholder="https://script.google.com/macros/s/xxxxx/exec">
       </div>
-      <div style="margin-top:8px;font-size:11px;color:#888;">貼上 GAS 部署後的「網頁應用程式」網址</div>
+      <div style="margin-top:4px;margin-bottom:14px;font-size:11px;color:#888;">匯率查詢 + 員工管理 GAS 的部署網址</div>
+      <div style="font-size:12px;color:#555;margin-bottom:6px;font-weight:bold;">申請單儲存 GAS 網址</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="gas-save-inp"
+          style="flex:1;min-width:0;border:1px solid #b0c8e8;border-radius:5px;padding:7px 10px;font-size:11.5px;font-family:monospace;"
+          placeholder="https://script.google.com/macros/s/yyyyy/exec（留空則使用上方網址）">
+      </div>
+      <div style="margin-top:4px;font-size:11px;color:#888;">列印時儲存申請紀錄的 GAS 網址；留空則沿用上方匯率 GAS</div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-close-m" onclick="closeGASModal();openSettingsMenu()" style="font-size:13px;padding:8px 18px;">← 返回</button>
@@ -1052,7 +1059,8 @@ const GSHEET_GID = '1209163089';
 /* ── 台銀匯率 GAS Proxy（部署後貼入網址）──
    設定方式：script.google.com 部署網路應用程式後，將網址貼到下方
    留空 '' 則略過此方法，改用備用方案                               */
-let GAS_BOT_PROXY = localStorage.getItem('GAS_BOT_PROXY') || '';
+let GAS_BOT_PROXY  = localStorage.getItem('GAS_BOT_PROXY')  || '';
+let GAS_SAVE_PROXY = localStorage.getItem('GAS_SAVE_PROXY') || 'https://script.google.com/macros/s/AKfycbx-Z0JZ-D12J2xWM4P6O4BaKYNkLXCwekyXovXq2YYqwxvDFirUNF6pzS2dZezVy1sMzQ/exec';
 
 let _gsData     = null;
 let _gsHeaders  = null;
@@ -1366,6 +1374,8 @@ function logoutSettings(){ _empUnlocked=false; closeSettingsMenu(); }
 function openGASModal(){
   const inp=document.getElementById('gas-proxy-inp');
   if(inp) inp.value=GAS_BOT_PROXY||'';
+  const sav=document.getElementById('gas-save-inp');
+  if(sav) sav.value=GAS_SAVE_PROXY||'';
   document.getElementById('gas-overlay').classList.add('open');
 }
 function closeGASModal(){ document.getElementById('gas-overlay').classList.remove('open'); }
@@ -1677,12 +1687,112 @@ function saveGASProxy(){
   const val=(document.getElementById('gas-proxy-inp')?.value||'').trim();
   GAS_BOT_PROXY=val;
   localStorage.setItem('GAS_BOT_PROXY',val);
+  const sval=(document.getElementById('gas-save-inp')?.value||'').trim();
+  GAS_SAVE_PROXY=sval;
+  localStorage.setItem('GAS_SAVE_PROXY',sval);
   const st=document.getElementById('gas-proxy-status');
   if(st){
     st.style.color=val?'#27ae60':'#e74c3c';
     st.textContent=val?'✔ 已儲存':'已清除';
     setTimeout(()=>{ st.textContent=''; },3000);
   }
+}
+
+/* ══════════════════════════════════════════════════════
+   列印前儲存補助申請資料至 Google Sheets（透過 GAS）
+   ══════════════════════════════════════════════════════ */
+
+/** 收集表單所有欄位值，回傳純物件 */
+function collectApplicationData(){
+  const gv  = id => (document.getElementById(id)?.value||'').trim();
+  const ck  = id => document.getElementById(id)?.checked ? '是' : '';
+  const num = id => parseFloat(document.getElementById(id)?.value)||0;
+
+  /* 日期格式：115年4月20日 */
+  const fmtDate = (y,m,d) => {
+    const yv=gv(y),mv=gv(m),dv=gv(d);
+    return (yv&&mv&&dv) ? `${yv}年${mv}月${dv}日` : '';
+  };
+
+  /* 補助對象文字 */
+  const benefitsList = getBenefits();
+
+  /* 金額（列印前 calcAll() 已算好，直接讀全域變數）*/
+  const tkt = window._tkt||0;
+  const htl = window._htl||0;
+  const pkg = window._pkg||0;
+  const tot = Math.round((tkt+htl+pkg)*10)/10;
+
+  return {
+    action     : 'saveApplication',
+    timestamp  : new Date().toLocaleString('zh-TW',{hour12:false}),
+    empid      : gv('empid'),
+    name       : gv('name'),
+    dept       : gv('dept'),
+    unit       : gv('unit'),
+    dateStart  : fmtDate('ds_y','ds_m','ds_d'),
+    dateEnd    : fmtDate('de_y','de_m','de_d'),
+    travelDays : gv('travel_days'),
+    specialDays: gv('special_days'),
+    otherLeave : gv('other_leave'),
+    destination: gv('destination'),
+    tripType   : _tripType==='free'?'自由行':'跟團',
+    benefits   : benefitsList,
+    totPpl     : gv('tot_ppl'),
+    nonSub     : gv('non_sub'),
+    tktTotal   : tkt,
+    htlTotal   : htl,
+    pkgTotal   : pkg,
+    grandTotal : tot,
+    remark     : gv('remark')
+  };
+}
+
+/** 送資料到 GAS，回傳 Promise */
+function saveApplicationToGAS(data){
+  return new Promise((resolve, reject)=>{
+    const saveUrl = GAS_SAVE_PROXY || GAS_BOT_PROXY;
+    if(!saveUrl){ reject(new Error('GAS未設定，略過儲存')); return; }
+    const cbName = '_appSave_'+Date.now();
+    let script = null;
+    const cleanup = ()=>{ try{delete window[cbName];}catch(e){} script?.remove(); };
+    const timer = setTimeout(()=>{ cleanup(); reject(new Error('儲存逾時(15s)')); }, 15000);
+    window[cbName] = function(resp){
+      clearTimeout(timer); cleanup();
+      (resp?.ok) ? resolve(resp) : reject(new Error(resp?.error||'GAS回傳錯誤'));
+    };
+    const qs = Object.entries({...data, callback:cbName, _:Date.now()})
+      .map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+      .join('&');
+    script = document.createElement('script');
+    script.src = `${saveUrl}?${qs}`;
+    script.onerror = ()=>{ clearTimeout(timer); cleanup(); reject(new Error('Script載入失敗')); };
+    document.head.appendChild(script);
+  });
+}
+
+/** 列印按鈕：先存 Sheets，再列印 */
+async function doPrintAndSave(){
+  const btn = document.getElementById('btn-print-save');
+  const origText = btn ? btn.textContent : '';
+
+  /* ── 嘗試儲存 ── */
+  if(GAS_SAVE_PROXY || GAS_BOT_PROXY){
+    if(btn){ btn.disabled=true; btn.textContent='⏳ 儲存中…'; }
+    try{
+      await saveApplicationToGAS(collectApplicationData());
+      if(btn){ btn.textContent='✔ 已存檔'; }
+      await new Promise(r=>setTimeout(r,800));   // 讓使用者看到「已存檔」
+    } catch(e){
+      console.warn('[saveApp]', e.message);
+      const cont = confirm(`⚠ 資料儲存至試算表時發生錯誤：\n${e.message}\n\n是否仍要繼續列印？`);
+      if(btn){ btn.disabled=false; btn.textContent=origText; }
+      if(!cont) return;
+    }
+    if(btn){ btn.disabled=false; btn.textContent=origText; }
+  }
+
+  window.print();
 }
 
 /* ── 備用參考匯率（來源：fawazahmed0/jsDelivr CDN 或 Frankfurter/ECB）
