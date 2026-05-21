@@ -1059,7 +1059,7 @@ const GSHEET_GID = '1209163089';
 /* ── 台銀匯率 GAS Proxy（部署後貼入網址）──
    設定方式：script.google.com 部署網路應用程式後，將網址貼到下方
    留空 '' 則略過此方法，改用備用方案                               */
-let GAS_BOT_PROXY  = localStorage.getItem('GAS_BOT_PROXY')  || '';
+let GAS_BOT_PROXY  = localStorage.getItem('GAS_BOT_PROXY')  || 'https://script.google.com/macros/s/AKfycbxyhm8pC3edxQ9Ixfly5DMzFXlreL5KLHcCKMiq4GokAqkKBbtr6XUkBdIn-4lnKO9O4g/exec';
 let GAS_SAVE_PROXY = localStorage.getItem('GAS_SAVE_PROXY') || 'https://script.google.com/macros/s/AKfycbx-Z0JZ-D12J2xWM4P6O4BaKYNkLXCwekyXovXq2YYqwxvDFirUNF6pzS2dZezVy1sMzQ/exec';
 
 let _gsData     = null;
