@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>115年國外旅遊補助申請單｜使用教學</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #0ea5e9;
+    --sky-dark: #0284c7;
+    --sky-light: #e0f2fe;
+    --navy: #0f172a;
+    --slate: #334155;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --bg: #f8fafc;
+    --white: #ffffff;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --step1: #6366f1;
+    --step2: #0ea5e9;
+    --step3: #10b981;
+    --step4: #f59e0b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--navy);
+    line-height: 1.7;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0369a1 100%);
+    color: white;
+    padding: 72px 24px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-plane {
+    font-size: 56px;
+    display: block;
+    margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  .hero h1 {
+    font-size: clamp(22px, 5vw, 36px);
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    margin-bottom: 12px;
+  }
+  .hero p {
+    font-size: 16px;
+    color: #93c5fd;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 999px;
+    padding: 4px 16px;
+    font-size: 13px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(8px);
+  }
+
+  /* PROGRESS NAV */
+  .progress-nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+    overflow-x: auto;
+  }
+  .nav-step {
+    padding: 16px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .nav-step:hover { color: var(--sky); border-bottom-color: var(--sky-light); }
+  .nav-step.s1 { border-bottom-color: transparent; }
+
+  /* MAIN LAYOUT */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 64px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border);
+  }
+  .step-badge {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    font-weight: 900;
+    color: white;
+    flex-shrink: 0;
+  }
+  .s1 .step-badge { background: var(--step1); }
+  .s2 .step-badge { background: var(--step2); }
+  .s3 .step-badge { background: var(--step3); }
+  .s4 .step-badge { background: var(--step4); }
+  .s5 .step-badge { background: #8b5cf6; }
+  .section-title {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+  }
+  .section-subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* CARD */
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon { font-size: 18px; }
+  .card p, .card li {
+    font-size: 14.5px;
+    color: var(--slate);
+    line-height: 1.75;
+  }
+  .card ul, .card ol {
+    padding-left: 20px;
+    margin-top: 6px;
+  }
+  .card li { margin-bottom: 4px; }
+
+  /* STEP ROW */
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .step-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    transition: box-shadow 0.2s;
+  }
+  .step-row:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
+    color: white;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-content { flex: 1; }
+  .step-content strong {
+    display: block;
+    font-size: 15px;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .step-content p {
+    font-size: 13.5px;
+    color: var(--slate);
+    line-height: 1.65;
+  }
+
+  /* ROUTE CARDS */
+  .route-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 600px) { .route-grid { grid-template-columns: 1fr; } }
+  .route-card {
+    border-radius: 16px;
+    padding: 24px;
+    border: 2px solid transparent;
+  }
+  .route-card.tour {
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    border-color: #a78bfa;
+  }
+  .route-card.free {
+    background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+    border-color: #38bdf8;
+  }
+  .route-card .route-icon { font-size: 36px; margin-bottom: 12px; }
+  .route-card h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+  .route-card.tour h3 { color: #5b21b6; }
+  .route-card.free h3 { color: #0369a1; }
+  .route-card p { font-size: 13.5px; line-height: 1.6; }
+  .route-card.tour p { color: #6d28d9; }
+  .route-card.free p { color: #0c4a6e; }
+  .route-sub { font-size: 12px; margin-top: 8px; opacity: 0.7; }
+
+  /* TIP BOX */
+  .tip {
+    display: flex;
+    gap: 12px;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+  .tip.info { background: #eff6ff; border-left: 4px solid #3b82f6; color: #1d4ed8; }
+  .tip.warn { background: #fffbeb; border-left: 4px solid #f59e0b; color: #92400e; }
+  .tip.success { background: #f0fdf4; border-left: 4px solid #22c55e; color: #166534; }
+  .tip-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  /* CURRENCY TABLE */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    margin-top: 4px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead tr { background: #f1f5f9; }
+  th { padding: 12px 16px; text-align: left; font-weight: 700; color: var(--slate); font-size: 13px; }
+  td { padding: 12px 16px; color: var(--slate); border-top: 1px solid var(--border); }
+  tr:hover td { background: #f8fafc; }
+
+  /* CHECKLIST */
+  .checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--slate);
+  }
+  .check-box {
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    background: #dcfce7;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .tag-blue { background: #dbeafe; color: #1d4ed8; }
+  .tag-green { background: #dcfce7; color: #166534; }
+  .tag-amber { background: #fef3c7; color: #92400e; }
+  .tag-purple { background: #ede9fe; color: #5b21b6; }
+
+  /* FLOW */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 4px;
+  }
+  .flow-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .flow-line-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 32px;
+  }
+  .flow-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--sky);
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .flow-line { width: 2px; flex: 1; background: #e2e8f0; min-height: 24px; }
+  .flow-item:last-child .flow-line { display: none; }
+  .flow-text {
+    padding: 4px 0 20px;
+    font-size: 14px;
+    color: var(--slate);
+  }
+  .flow-text strong { color: var(--navy); }
+
+  /* FOOTER */
+  footer {
+    background: var(--navy);
+    color: #64748b;
+    text-align: center;
+    padding: 32px 24px;
+    font-size: 13px;
+  }
+  footer a { color: var(--sky); text-decoration: none; }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 48px 0;
+  }
+
+  /* SCROLL ANIMATION */
+  .card, .step-row, .route-card {
+    animation: fadeUp 0.4s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-plane">✈️</span>
+  <div class="hero-badge">弈樂科技 員工專用</div>
+  <h1>115年國外旅遊補助<br>申請單使用教學</h1>
+  <p>依照以下步驟，輕鬆完成申請，快速領取旅遊補助</p>
+</div>
+
+<!-- STICKY NAV -->
+<nav class="progress-nav">
+  <a href="#step0" class="nav-step">🔐 登入</a>
+  <a href="#step1" class="nav-step">📋 基本資料</a>
+  <a href="#step2" class="nav-step">✈️ 旅遊方式</a>
+  <a href="#step3" class="nav-step">💴 費用填寫</a>
+  <a href="#step4" class="nav-step">👁️ 預覽輸出</a>
+  <a href="#faq" class="nav-step">❓ 常見問題</a>
+</nav>
+
+<div class="container">
+
+  <!-- 前置準備 -->
+  <div id="step0" class="section">
+    <div class="section-header s1">
+      <div class="step-badge">🔐</div>
+      <div>
+        <div class="section-title">前置準備｜登入帳號</div>
+        <div class="section-subtitle">使用公司帳號登入，系統才能自動帶入個人資料</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🌐</span> 開啟申請網頁</div>
+      <p>請直接開啟以下連結：<br>
+      <a href="https://chris-yl-tw.github.io/travel-form/" target="_blank" style="color:var(--sky); font-family:'DM Mono',monospace; font-size:13px;">
+        https://chris-yl-tw.github.io/travel-form/
+      </a></p>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">👤</span> 使用弈樂科技 Google 帳號登入</div>
+      <p>請使用公司配發的 <strong>@yile.com.tw</strong> Google 帳號登入，非公司帳號將無法使用系統功能。</p>
+      <div class="tip warn">
+        <span class="tip-icon">⚠️</span>
+        <span>若使用個人 Gmail 帳號登入，系統將提示「僅限弈樂科技帳號使用」，請切換帳號後重新登入。</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div id="step1" class="section">
+    <div class="section-header s1">
+      <div class="step-badge s1">1</div>
+      <div>
+        <div class="section-title">第一步｜填寫基本資料</div>
+        <div class="section-subtitle">輸入工號，系統自動帶入姓名、部門等資訊</div>
+      </div>
+    </div>
+
+    <div class="steps-list">
+      <div class="step-row">
+        <div class="step-num" style="background:var(--step1);">1</div>
+        <div class="step-content">
+          <strong>輸入工號</strong>
+          <p>在「工號」欄位輸入自己的員工工號後按 Enter 或點擊其他欄位，系統會自動帶入姓名、部門、單位。同時也會查詢是否<span style="color:#ef4444; font-weight:600;">已填寫旅遊 Google 表單，若有，旅遊日期與地點也會自動帶入。</span></p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num" style="background:var(--step1);">2</div>
+        <div class="step-content">
+          <strong>確認或填寫旅遊日期</strong>
+          <p>填入<strong>出國日期</strong>與<strong>回國日期</strong>（格式：年、月、日分別填入）。系統會自動帶入旅遊天數。</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num" style="background:var(--step1);">3</div>
+        <div class="step-content">
+          <strong>填寫旅遊地點</strong>
+          <p>輸入此次旅遊的國家或城市名稱，例如「日本東京」、「泰國清邁」。</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num" style="background:var(--step1);">4</div>
+        <div class="step-content">
+          <strong>勾選補助對象人數</strong>
+          <p>依實際情況勾選：<strong>本人、配偶、子女（填人數）、父親、母親、配偶父親、配偶母親</strong>。系統會自動加總補助人數。若有同行但非補助對象的人員，請填入「非補助人數」，系統將自動計算扣除金額。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip info">
+      <span class="tip-icon">💡</span>
+      <span>若工號輸入後資料沒有自動帶入，可能是沒填旅遊表單或尚未建立員工資料，請聯繫管理部 Chris 新增。</span>
+    </div>
+  </div>
+
+  <!-- STEP 2 旅遊方式 -->
+  <div id="step2" class="section">
+    <div class="section-header s2">
+      <div class="step-badge s2">2</div>
+      <div>
+        <div class="section-title">第二步｜選擇旅遊方式</div>
+        <div class="section-subtitle">跟團或自由行，後續填寫步驟不同</div>
+      </div>
+    </div>
+
+    <div class="route-grid">
+      <div class="route-card tour">
+        <div class="route-icon">🚌</div>
+        <h3>跟團</h3>
+        <p>參加旅行社套裝行程，整體費用以「團費」方式填寫。</p>
+        <p class="route-sub">→ 下一步：填寫團費資訊</p>
+      </div>
+      <div class="route-card free">
+        <div class="route-icon">✈️</div>
+        <h3>自由行</h3>
+        <p>自行購買機票與住宿，分別填寫機票費用與住宿費用。</p>
+        <p class="route-sub">→ 下一步：填寫機票費用 → 住宿費用</p>
+      </div>
+    </div>
+
+    <div class="tip info" style="margin-top:16px;">
+      <span class="tip-icon">ℹ️</span>
+      <span>選擇完畢後點選「<strong>下一步</strong>」按鈕，系統將根據所選方式顯示對應的費用填寫頁面。</span>
+    </div>
+  </div>
+
+  <!-- STEP 3 費用填寫 -->
+  <div id="step3" class="section">
+    <div class="section-header s3">
+      <div class="step-badge s3">3</div>
+      <div>
+        <div class="section-title">第三步｜填寫費用</div>
+        <div class="section-subtitle">依旅遊方式填寫機票＋住宿 或 團費</div>
+      </div>
+    </div>
+
+    <!-- 費用填寫說明 -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-title"><span class="icon">💱</span> 外幣填寫原則（重要）</div>
+      <ul>
+        <li>信用卡外幣消費：填信用卡帳單<strong>台幣金額</strong>，<span style="color:#ef4444; font-weight:600;">若帳單有顯示外幣金額也請一併填入</span>，如有產生<strong>國外交易服務費</strong>也請填入。</li>
+        <li>外幣現金消費：填<strong>外幣金額</strong>，系統會自動依台銀匯率換算台幣。</li>
+        <li>若有小數點，請計算到小數點第 1 位後<strong>四捨五入</strong>。</li>
+      </ul>
+    </div>
+
+    <div class="route-grid" style="margin-bottom:20px;">
+      <!-- 跟團 -->
+      <div class="card" style="border-top: 4px solid #8b5cf6;">
+        <div class="card-title"><span class="tag tag-purple">跟團</span> 團費填寫</div>
+        <div class="steps-list" style="gap:8px;">
+          <div class="flow">
+            <div class="flow-item">
+              <div class="flow-line-wrap">
+                <div class="flow-dot" style="background:#8b5cf6;"></div>
+                <div class="flow-line"></div>
+              </div>
+              <div class="flow-text"><strong>填寫旅行社名稱</strong></div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-line-wrap">
+                <div class="flow-dot" style="background:#8b5cf6;"></div>
+                <div class="flow-line"></div>
+              </div>
+              <div class="flow-text"><strong>填入台幣金額或信用卡帳單金額</strong>（含手續費）</div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-line-wrap">
+                <div class="flow-dot" style="background:#8b5cf6;"></div>
+                <div class="flow-line"></div>
+              </div>
+              <div class="flow-text"><strong>確認是否有非補助人員</strong>，系統自動計算扣除金額</div>
+            </div>
+            <div class="flow-item">
+              <div class="flow-line-wrap">
+                <div class="flow-dot" style="background:#8b5cf6;"></div>
+                <div class="flow-line"></div>
+              </div>
+              <div class="flow-text">如有備註事項可填入</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 自由行 -->
+      <div class="card" style="border-top: 4px solid var(--sky);">
+        <div class="card-title"><span class="tag tag-blue">自由行</span> 機票＋住宿</div>
+        <div class="flow">
+          <div class="flow-item">
+            <div class="flow-line-wrap">
+              <div class="flow-dot"></div>
+              <div class="flow-line"></div>
+            </div>
+            <div class="flow-text"><strong>機票費用</strong>：點「＋ 新增趟次」逐筆新增去程、回程票</div>
+          </div>
+          <div class="flow-item">
+            <div class="flow-line-wrap">
+              <div class="flow-dot"></div>
+              <div class="flow-line"></div>
+            </div>
+            <div class="flow-text">每筆填寫：幣別、金額、手續費等</div>
+          </div>
+          <div class="flow-item">
+            <div class="flow-line-wrap">
+              <div class="flow-dot" style="background: var(--green);"></div>
+              <div class="flow-line"></div>
+            </div>
+            <div class="flow-text"><strong>住宿費用</strong>：點「＋ 新增飯店」逐間新增住宿費用</div>
+          </div>
+          <div class="flow-item">
+            <div class="flow-line-wrap">
+              <div class="flow-dot" style="background: var(--green);"></div>
+              <div class="flow-line"></div>
+            </div>
+            <div class="flow-text">每間填寫：飯店名稱、幣別、金額等</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip warn">
+      <span class="tip-icon">📌</span>
+      <span>自由行住宿費用：建議在住宿訂單及收據上方標註數字（如 ①②③），方便與申請單上的卡片順序對應，審核時更清楚。</span>
+    </div>
+  </div>
+
+  <!-- STEP 4 預覽輸出 -->
+  <div id="step4" class="section">
+    <div class="section-header s4">
+      <div class="step-badge s4">4</div>
+      <div>
+        <div class="section-title">第四步｜預覽確認與輸出 PDF</div>
+        <div class="section-subtitle">最後檢查所有資料，確認無誤後輸出正式表單</div>
+      </div>
+    </div>
+
+    <div class="steps-list">
+      <div class="step-row">
+        <div class="step-num" style="background:var(--step4);">1</div>
+        <div class="step-content">
+          <strong>點選「預覽確認」</strong>
+          <p>系統將彙整所有填寫內容，顯示完整的申請表預覽。請仔細核對姓名、旅遊日期、費用金額、補助人數等是否正確。</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num" style="background:var(--step4);">2</div>
+        <div class="step-content">
+          <strong>如需修改</strong>
+          <p>點選「<strong>返回修改</strong>」可回到對應步驟進行調整，修改後再次進入預覽頁面。</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num" style="background:var(--step4);">3</div>
+        <div class="step-content">
+          <strong>確認無誤後，點選「列印」</strong>
+          <p>瀏覽器會開啟列印對話框，請選擇<strong>「列印」</strong>將表單列印出來。</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num" style="background:var(--step4);">4</div>
+        <div class="step-content">
+          <strong>提交申請單及相關憑證</strong>
+          <p>將列印出的申請單連同機票、住宿收據（或團費收據）一併提交給管理部 Chris。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip success">
+      <span class="tip-icon">✅</span>
+      <span>列印時，建議瀏覽器列印設定選擇「<strong>背景圖形</strong>」，讓列印呈現完整樣式。</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 完整流程圖 -->
+  <div class="section" style="margin-bottom:48px;">
+    <div class="section-header" style="border-bottom-color:var(--border);">
+      <div class="step-badge" style="background:var(--sky);">📋</div>
+      <div>
+        <div class="section-title">完整申請流程一覽</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flow" style="padding-left:4px;">
+        <div class="flow-item">
+          <div class="flow-line-wrap">
+            <div class="flow-dot" style="background:#6366f1; width:16px; height:16px;"></div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-text"><strong>登入公司 Google 帳號</strong>（@yile.com.tw）</div>
+        </div>
+        <div class="flow-item">
+          <div class="flow-line-wrap">
+            <div class="flow-dot" style="background:#6366f1; width:16px; height:16px;"></div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-text"><strong>輸入工號</strong> → 自動帶入個人資料</div>
+        </div>
+        <div class="flow-item">
+          <div class="flow-line-wrap">
+            <div class="flow-dot" style="background:#0ea5e9; width:16px; height:16px;"></div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-text"><strong>填寫旅遊日期、地點、補助人數</strong></div>
+        </div>
+        <div class="flow-item">
+          <div class="flow-line-wrap">
+            <div class="flow-dot" style="background:#0ea5e9; width:16px; height:16px;"></div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-text"><strong>選擇旅遊方式</strong>：跟團 / 自由行</div>
+        </div>
+        <div class="flow-item">
+          <div class="flow-line-wrap">
+            <div class="flow-dot" style="background:#10b981; width:16px; height:16px;"></div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-text"><strong>填寫費用</strong>：跟團→團費；自由行→機票＋住宿</div>
+        </div>
+        <div class="flow-item">
+          <div class="flow-line-wrap">
+            <div class="flow-dot" style="background:#f59e0b; width:16px; height:16px;"></div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-text"><strong>預覽確認</strong> → 列印表單</div>
+        </div>
+        <div class="flow-item">
+          <div class="flow-line-wrap">
+            <div class="flow-dot" style="background:#22c55e; width:16px; height:16px;"></div>
+          </div>
+          <div class="flow-text"><strong>繳交表單 + 相關憑證</strong>給管理部 Chris</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div id="faq" class="section">
+    <div class="section-header" style="border-bottom-color:var(--border);">
+      <div class="step-badge" style="background:#64748b;">❓</div>
+      <div>
+        <div class="section-title">常見問題</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Q：輸入工號後資料沒有自動帶入？</div>
+      <p>可能原因：(1) 員工資料尚未建立在系統中；(2) 工號輸入有誤。請確認工號後聯繫管理部 Chris 確認員工資料。(3) 沒填旅遊表單。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Q：旅遊 Google 表單是什麼？</div>
+      <p>公司會在出遊前請員工填寫旅遊 Google 表單，紀錄旅遊日期與地點。若已填寫，系統可根據工號自動帶入此資訊（若資料有誤可直接修改）；若尚未填寫，本次將無法申請補助。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Q：外幣現金的匯率如何計算？</div>
+      <p>系統會自動依台灣銀行即期匯率換算，無需手動查詢匯率。系統管理員需預先設定好匯率查詢的 Google Apps Script 網址，匯率才能正常運作。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Q：非補助人數要怎麼填？</div>
+      <p>若同行人員中有不在補助範圍內的人（如朋友、其他親戚），請在「非補助人數」欄位填入人數，系統會依此自動計算應扣除的費用金額。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Q：填到一半想清除重填怎麼辦？</div>
+      <p>在第一步的基本資料頁面下方有「<strong>清除表單</strong>」按鈕，點選後可清除所有已填寫的資料，重新開始填寫。</p>
+      <div class="tip warn" style="margin-top:10px;">
+        <span class="tip-icon">⚠️</span>
+        <span>清除後所有資料將無法復原，請確認後再操作。</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  <p>115年國外旅遊補助申請單使用教學 · 弈樂科技內部文件</p>
+  <p style="margin-top:6px;"><a href="https://chris-yl-tw.github.io/travel-form/" target="_blank">前往申請單 →</a></p>
+</footer>
+
+</body>
+</html>
