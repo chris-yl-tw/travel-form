@@ -38,32 +38,58 @@ body {
 /* ═══════════════════════ HERO ═══════════════════════ */
 .hero {
   position: relative;
-  background: linear-gradient(140deg, #0a1628 0%, #1e3a5f 45%, #1a4a8a 75%, #0369a1 100%);
   padding: 90px 24px 100px;
   text-align: center;
   overflow: hidden;
 }
 
-.hero-orb {
+/* 底圖 */
+.hero-bg {
   position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.25;
+  inset: 0;
+  background-image: url('lounge.png');
+  background-size: cover;
+  background-position: center 35%;
+  filter: brightness(0.72) saturate(1.1);
+  transform: scale(1.03);
+}
+
+/* 多層遮罩：底部漸暗 */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg,
+      rgba(5,15,35,.42) 0%,
+      rgba(10,22,50,.28) 40%,
+      rgba(5,12,30,.68) 80%,
+      rgba(5,10,25,.88) 100%
+    );
+  z-index: 1;
+}
+
+/* 暖色暈染 */
+.hero-warm {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 75% 40%,
+    rgba(245,140,50,.12) 0%, transparent 65%);
+  z-index: 2;
   pointer-events: none;
 }
-.orb1 { width:500px; height:500px; background:#3b82f6; top:-150px; left:-100px; }
-.orb2 { width:400px; height:400px; background:#0ea5e9; bottom:-100px; right:-80px; }
-.orb3 { width:300px; height:300px; background:#7c3aed; top:50px; right:100px; }
+
+.hero-orb { display: none; }
 
 .hero-grid {
   position: absolute; inset: 0;
+  z-index: 3;
   background-image:
-    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
-.hero-inner { position: relative; z-index: 2; max-width: 680px; margin: 0 auto; }
+.hero-inner { position: relative; z-index: 10; max-width: 680px; margin: 0 auto; }
 
 .hero-chip {
   display: inline-flex;
@@ -546,6 +572,9 @@ footer a:hover { color: #38bdf8; }
 
 <!-- ══════════ HERO ══════════ -->
 <header class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-warm"></div>
   <div class="hero-orb orb1"></div>
   <div class="hero-orb orb2"></div>
   <div class="hero-orb orb3"></div>
