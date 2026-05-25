@@ -109,24 +109,21 @@ body {
 .hero-chip::before { content:''; width:6px; height:6px; background:#38bdf8; border-radius:50%; }
 
 .plane-wrap {
-  position: absolute;
-  font-size: 62px;
-  z-index: 8;
-  top: 22%;
-  left: 0;
+  display: block;
+  font-size: 68px;
+  margin-bottom: 20px;
   pointer-events: none;
-  filter: drop-shadow(0 8px 28px rgba(14,165,233,.55));
-  animation: flyAcross 9s cubic-bezier(.4,0,.6,1) infinite;
+  filter: drop-shadow(0 10px 28px rgba(14,165,233,.55));
+  animation: planeFloat 5s ease-in-out infinite;
   will-change: transform;
+  transform-origin: center;
 }
-@keyframes flyAcross {
-  0%   { transform: translateX(-120px) translateY(30px)  rotate(-8deg) scale(.85); opacity:0; }
-  6%   { opacity: 1; }
-  30%  { transform: translateX(25vw)   translateY(-20px) rotate(-4deg) scale(1);   opacity:1; }
-  50%  { transform: translateX(48vw)   translateY(-40px) rotate(0deg)  scale(1.06);opacity:1; }
-  70%  { transform: translateX(72vw)   translateY(-20px) rotate(3deg)  scale(1);   opacity:1; }
-  94%  { opacity: 1; }
-  100% { transform: translateX(calc(100vw + 120px)) translateY(20px) rotate(6deg) scale(.85); opacity:0; }
+@keyframes planeFloat {
+  0%   { transform: translateY(0px)   translateX(0px)   rotate(-5deg); }
+  25%  { transform: translateY(-12px) translateX(6px)   rotate(-2deg); }
+  50%  { transform: translateY(-18px) translateX(12px)  rotate(2deg);  }
+  75%  { transform: translateY(-8px)  translateX(5px)   rotate(-1deg); }
+  100% { transform: translateY(0px)   translateX(0px)   rotate(-5deg); }
 }
 
 .hero h1 {
@@ -623,9 +620,9 @@ footer a:hover { color: #38bdf8; }
   <div class="hero-orb orb2"></div>
   <div class="hero-orb orb3"></div>
   <div class="hero-grid"></div>
-  <span class="plane-wrap">✈️</span>
   <div class="hero-inner">
     <div class="hero-chip">弈樂科技 員工專用</div>
+    <span class="plane-wrap">✈️</span>
     <h1>115年國外旅遊補助<br><span>申請單使用教學</span></h1>
     <p>依照以下步驟，輕鬆完成申請，快速領取旅遊補助</p>
     <a href="https://chris-yl-tw.github.io/travel-form/" target="_blank" class="hero-cta">
@@ -651,7 +648,7 @@ footer a:hover { color: #38bdf8; }
     <a href="#step1"  class="nav-link">📋 基本資料</a>
     <a href="#step2"  class="nav-link">🗺️ 旅遊方式</a>
     <a href="#step3"  class="nav-link">💴 費用填寫</a>
-    <a href="#step4"  class="nav-link">🖨️ 輸出PDF</a>
+    <a href="#step4"  class="nav-link">🖨️ 輸出列印</a>
     <a href="#flow"   class="nav-link">📊 完整流程</a>
     <a href="#faq"    class="nav-link">❓ 常見問題</a>
   </div>
