@@ -259,13 +259,18 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;
 @media print{
   .toolbar,.step-bar,.wizard,.overlay,#empid-hint-bar,
   #preview-content,.page-card,.card-head,.card-body,.card-foot{display:none!important}
+  /* 清除背景裝飾 pseudo-element（右下角藍色暈染來源） */
+  body::before,body::after{content:none!important;display:none!important;}
   #print-area{display:block!important}
-  body{background:#fff;margin:0;padding:0}
+  body{background:#fff!important;margin:0;padding:0}
   @page{size:A4 portrait;margin:8mm 10mm}
-  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-shadow:none!important;}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;
+    box-shadow:none!important;text-shadow:none!important;}
   #print-area{width:100%;font-size:12px;zoom:0.95;}
   table.pt td{font-size:11.5px;padding:5px 7px;height:auto;line-height:1.55;}
-  .pt-wrapper{border:3px solid var(--navy)!important;}
+  /* 強制第一欄與最後欄邊框，消除白線與右側細線 */
+  table.pt tr td:first-child{border-left:3px solid var(--navy)!important;}
+  table.pt tr:first-child td{border-top:3px solid var(--navy)!important;}
 }
 
 /* 列印用表格樣式 */
