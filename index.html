@@ -262,13 +262,15 @@ input[type=checkbox]{width:13px;height:13px;cursor:pointer;
   #print-area{display:block!important}
   body{background:#fff;margin:0;padding:0}
   @page{size:A4 portrait;margin:8mm 10mm}
-  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-shadow:none!important;}
   #print-area{width:100%;font-size:12px;zoom:0.95;}
   table.pt td{font-size:11.5px;padding:5px 7px;height:auto;line-height:1.55;}
+  .pt-wrapper{border:3px solid var(--navy)!important;}
 }
 
 /* 列印用表格樣式 */
-table.pt{width:100%;border-collapse:collapse;table-layout:fixed;outline:3px solid var(--navy)}
+.pt-wrapper{border:3px solid var(--navy);display:block;width:100%;}
+table.pt{width:100%;border-collapse:collapse;table-layout:fixed;}
 table.pt col{width:6.25%}
 table.pt td{border:1px solid #9aaac8;padding:5px 7px;vertical-align:middle;
   line-height:1.55;font-size:12px;overflow:hidden}
@@ -3003,9 +3005,10 @@ function buildPreview(){
     .replace(/<colgroup>[\s\S]*?<\/colgroup>/,'')
     .replace('</table>','');
   document.getElementById('print-area').innerHTML=
+    `<div class="pt-wrapper">` +
     `<table class="pt" style="width:100%;border-collapse:collapse;table-layout:fixed;">` +
     `<colgroup>${'<col style="width:6.25%">'.repeat(16)}</colgroup>` +
-    inner + `</table>`;
+    inner + `</table></div>`;
 }
 
 /* ── 重置 ── */
