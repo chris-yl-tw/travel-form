@@ -860,7 +860,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
 <!-- ════ JavaScript ════ -->
 <script>
 /* ── 員工資料 ── */
-const EMP_KEY = 'emp_data_real_v3';
+const EMP_KEY = 'emp_data_real_v4';
 const DEFAULT_EMP = [
   {"id": "Y201807001", "name": "徐琮裕", "dept": "YGM001管理部", "unit": "YGM001管理部"},
   {"id": "Y201807002", "name": "楊涵淵", "dept": "YBU001事業1部", "unit": "YBU001C客戶服務課"},
@@ -923,6 +923,7 @@ const DEFAULT_EMP = [
   {"id": "Y201907006", "name": "潘紫涵", "dept": "YBU005事業5部", "unit": "YBU005事業5部"},
   {"id": "Y201908005", "name": "侯名家", "dept": "YBU002事業2部", "unit": "YBU002D研發課"},
   {"id": "Y201908006", "name": "吳采霖", "dept": "YBU001事業1部", "unit": "YBU001A企劃課"},
+  {"id": "Y202207005", "name": "許庭綸", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
   {"id": "Y201909004", "name": "段品任", "dept": "YBU005事業5部", "unit": "YBU005事業5部"},
   {"id": "Y201911001", "name": "曹家銘", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
   {"id": "Y201911002", "name": "蔡佳玟", "dept": "YMKT01行銷部", "unit": "YMKT01C平面設計課"},
@@ -944,7 +945,6 @@ const DEFAULT_EMP = [
   {"id": "Y202004007", "name": "廖珈棋", "dept": "YDIT01智能資料部", "unit": "YDIT01A資料平台課"},
   {"id": "Y202004008", "name": "梁家瑋", "dept": "YBU005事業5部", "unit": "YBU005事業5部"},
   {"id": "Y202005002", "name": "洪士勛", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
-  {"id": "Y202005003", "name": "陳彥霖", "dept": "JBU005事業5部", "unit": "JBU005事業5部"},
   {"id": "Y202005006", "name": "王怡婷", "dept": "YMKT01行銷部", "unit": "YMKT01C平面設計課"},
   {"id": "Y202007002", "name": "劉承凱", "dept": "YBU001事業1部", "unit": "YBU001P維運工程課"},
   {"id": "Y202007003", "name": "郭仁傑", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
@@ -979,10 +979,8 @@ const DEFAULT_EMP = [
   {"id": "Y202106004", "name": "柯至昱", "dept": "YBU004事業4部", "unit": "YBU004事業4部"},
   {"id": "Y202107002", "name": "吳克來", "dept": "YBU001事業1部", "unit": "YBU001L音樂音效課"},
   {"id": "Y202108001", "name": "林沂泓", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
-  {"id": "Y202109001", "name": "王宏展", "dept": "JGM001管理部", "unit": "JGM001管理部"},
   {"id": "Y202109002", "name": "黃柏翔", "dept": "YBU005事業5部", "unit": "YBU005事業5部"},
   {"id": "Y202109005", "name": "蔡瑋城", "dept": "YBU001事業1部", "unit": "YBU001F遊戲後端課"},
-  {"id": "Y202109006", "name": "段必文", "dept": "JBU001事業1部", "unit": "JBU001C客戶服務課"},
   {"id": "Y202110001", "name": "朱品蓁", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
   {"id": "Y202110003", "name": "蘇振輔", "dept": "YBU002事業2部", "unit": "YBU002F品保課"},
   {"id": "Y202110005", "name": "徐筠皓", "dept": "YIT001資訊技術部", "unit": "YIT001B雲端技術課"},
@@ -990,13 +988,11 @@ const DEFAULT_EMP = [
   {"id": "Y202110008", "name": "羅婉僑", "dept": "YBU005事業5部", "unit": "YBU005事業5部"},
   {"id": "Y202111001", "name": "沈怡瑾", "dept": "YMKT01行銷部", "unit": "YMKT01A品牌行銷課"},
   {"id": "Y202111003", "name": "林億婷", "dept": "YBU001事業1部", "unit": "YBU001D客戶關係管理課"},
-  {"id": "Y202111004", "name": "王怡勳", "dept": "JBU005事業5部", "unit": "JBU005事業5部"},
   {"id": "Y202111006", "name": "徐桂茹", "dept": "YBU005事業5部", "unit": "YBU005事業5部"},
   {"id": "Y202112001", "name": "曾筱軒", "dept": "YBU001事業1部", "unit": "YBU001事業1部"},
   {"id": "Y202112006", "name": "吳亭萱", "dept": "YBU005事業5部", "unit": "YBU005事業5部"},
   {"id": "Y202202001", "name": "葉晉松", "dept": "YBU004事業4部", "unit": "YBU004事業4部"},
   {"id": "Y202202002", "name": "孫佳淇", "dept": "YBU001事業1部", "unit": "YBU001J美術設計課"},
-  {"id": "Y202202003", "name": "許順能", "dept": "JBU002事業2部", "unit": "JBU002D研發課"},
   {"id": "Y202202004", "name": "李欣芸", "dept": "YBU002事業2部", "unit": "YBU002F品保課"},
   {"id": "Y202203001", "name": "葉佳翊", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
   {"id": "Y202203002", "name": "李龠", "dept": "YMKT01行銷部", "unit": "YMKT01C平面設計課"},
@@ -1012,12 +1008,9 @@ const DEFAULT_EMP = [
   {"id": "Y202204008", "name": "陳健誌", "dept": "YBU001事業1部", "unit": "YBU001GWeb平台開發課"},
   {"id": "Y202206003", "name": "程麒", "dept": "YBU005事業5部", "unit": "YBU005事業5部"},
   {"id": "Y202207002", "name": "張沂傑", "dept": "YBU001事業1部", "unit": "YBU001P維運工程課"},
-  {"id": "Y202207003", "name": "卓緯瑄", "dept": "JBU001事業1部", "unit": "JBU001GWeb平台開發課"},
-  {"id": "Y202207005", "name": "許庭綸", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
   {"id": "Y202208001", "name": "陳傑義", "dept": "YDIT01智能資料部", "unit": "YDIT01BAI 應用課"},
   {"id": "Y202208003", "name": "陸梓瑄", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
   {"id": "Y202208004", "name": "林佳穎", "dept": "YBU001事業1部", "unit": "YBU001K美術動畫課"},
-  {"id": "Y202211001", "name": "蕭力維", "dept": "JDIT01智能資料部", "unit": "JDIT01BAI 應用課"},
   {"id": "Y202212001", "name": "謝旻倩", "dept": "YBU002事業2部", "unit": "YBU002E美術課"},
   {"id": "Y202212002", "name": "黃千惠", "dept": "YBU001事業1部", "unit": "YBU001J美術設計課"},
   {"id": "Y202303001", "name": "鄭智忠", "dept": "YBU001事業1部", "unit": "YBU001B機率課"},
@@ -1090,19 +1083,6 @@ const DEFAULT_EMP = [
   {"id": "Y202510003", "name": "高國庭", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
   {"id": "Y202511001", "name": "張宸瑄", "dept": "YBU001事業1部", "unit": "YBU001I品保課"},
   {"id": "Y202511002", "name": "湯又瑞", "dept": "YBU001事業1部", "unit": "YBU001E遊戲平台課"},
-  {"id": "Y202512001", "name": "黃濠輝", "dept": "YBU001事業1部", "unit": "YBU001M任務1課"},
-  {"id": "Y202512002", "name": "周博元", "dept": "YBU001事業1部", "unit": "YBU001M任務1課"},
-  {"id": "Y202512004", "name": "郭仲緯", "dept": "YBU001事業1部", "unit": "YBU001N任務2課"},
-  {"id": "Y202512005", "name": "陳柏融", "dept": "YBU001事業1部", "unit": "YBU001N任務2課"},
-  {"id": "Y202512006", "name": "許佳華", "dept": "YBU001事業1部", "unit": "YBU001N任務2課"},
-  {"id": "Y202512007", "name": "鍾嘉翰", "dept": "YBU001事業1部", "unit": "YBU001N任務2課"},
-  {"id": "Y202512008", "name": "林楷文", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
-  {"id": "Y202512010", "name": "李承翰", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
-  {"id": "Y202512011", "name": "趙國鈞", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
-  {"id": "Y202512012", "name": "方旋", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
-  {"id": "Y202512013", "name": "張祐齊", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
-  {"id": "Y202512014", "name": "林怡叡", "dept": "YBU001事業1部", "unit": "YBU001M任務1課"},
-  {"id": "Y202512015", "name": "徐國祺", "dept": "YBU001事業1部", "unit": "YBU001M任務1課"},
   {"id": "Y202512016", "name": "賴佳欣", "dept": "YBU005事業5部", "unit": "YBU005事業5部"},
   {"id": "Y202601001", "name": "郭婷", "dept": "YGM001管理部", "unit": "YGM001管理部"},
   {"id": "Y202601002", "name": "王崇安", "dept": "YDIT01智能資料部", "unit": "YDIT01BAI 應用課"},
@@ -1118,7 +1098,27 @@ const DEFAULT_EMP = [
   {"id": "Y202604009", "name": "張詠信", "dept": "YBU004事業4部", "unit": "YBU004事業4部"},
   {"id": "Y202605001", "name": "劉彥慈", "dept": "YBU002事業2部", "unit": "YBU002E美術課"},
   {"id": "Y202606001", "name": "劉佳芸", "dept": "YMKT01行銷部", "unit": "YMKT01A品牌行銷課"},
-  {"id": "Y202606002", "name": "何安琪", "dept": "YGM001管理部", "unit": "YGM001管理部"}
+  {"id": "Y202606002", "name": "何安琪", "dept": "YGM001管理部", "unit": "YGM001管理部"},
+  {"id": "Y202512001", "name": "黃濠輝", "dept": "YBU001事業1部", "unit": "YBU001M任務1課"},
+  {"id": "Y202512002", "name": "周博元", "dept": "YBU001事業1部", "unit": "YBU001M任務1課"},
+  {"id": "Y202512004", "name": "郭仲緯", "dept": "YBU001事業1部", "unit": "YBU001N任務2課"},
+  {"id": "Y202512005", "name": "陳柏融", "dept": "YBU001事業1部", "unit": "YBU001N任務2課"},
+  {"id": "Y202512006", "name": "許佳華", "dept": "YBU001事業1部", "unit": "YBU001N任務2課"},
+  {"id": "Y202512007", "name": "鍾嘉翰", "dept": "YBU001事業1部", "unit": "YBU001N任務2課"},
+  {"id": "Y202512008", "name": "林楷文", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
+  {"id": "Y202512010", "name": "李承翰", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
+  {"id": "Y202512011", "name": "趙國鈞", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
+  {"id": "Y202512012", "name": "方旋", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
+  {"id": "Y202512013", "name": "張祐齊", "dept": "YBU001事業1部", "unit": "YBU001O任務3課"},
+  {"id": "Y202512014", "name": "林怡叡", "dept": "YBU001事業1部", "unit": "YBU001M任務1課"},
+  {"id": "Y202512015", "name": "徐國祺", "dept": "YBU001事業1部", "unit": "YBU001M任務1課"},
+  {"id": "Y202109001", "name": "王宏展", "dept": "JBU002事業2部", "unit": "JBU002D研發課"},
+  {"id": "Y202202003", "name": "許順能", "dept": "JBU005事業5部", "unit": "JBU005事業5部"},
+  {"id": "Y202211001", "name": "蕭力維", "dept": "JBU001事業1部", "unit": "JBU001GWeb平台開發課"},
+  {"id": "Y202109006", "name": "段必文", "dept": "JDIT01智能資料部", "unit": "JDIT01BAI 應用課"},
+  {"id": "Y202005003", "name": "陳彥霖", "dept": "JGM001管理部", "unit": "JGM001管理部"},
+  {"id": "Y202111004", "name": "王怡勳", "dept": "JBU001事業1部", "unit": "JBU001C客戶服務課"},
+  {"id": "Y202207003", "name": "卓緯瑄", "dept": "JBU005事業5部", "unit": "JBU005事業5部"}
 ];
 
 function loadEmployees(){
@@ -3154,5 +3154,8 @@ window.addEventListener('load', ()=>{
   }
 });
 </script>
+
+<!-- 版本號 -->
+<div id="app-version" style="position:fixed;bottom:8px;right:12px;font-size:10px;color:rgba(0,0,0,.25);pointer-events:none;z-index:9999;user-select:none;">v2026.06.23</div>
 </body>
 </html>
