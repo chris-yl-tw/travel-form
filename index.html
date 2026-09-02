@@ -1721,7 +1721,7 @@ function parseBOTcsv(text, currency, isCash){
     const c=line.split(',');
     if(!c[0]||c[0].trim().toUpperCase()!==cur) continue;
     let si=-1;
-    for(let k=1;k<c.length;k++){ if(c[k].indexOf('賣出')>=0){ si=k; break; } }
+    for(let k=1;k<c.length;k++){ if(c[k].indexOf('賣出')>=0||c[k].indexOf('Selling')>=0){ si=k; break; } }
     if(si<0) continue;
     let r=parseFloat(c[si+(isCash?1:2)]);
     if(!(r>0)) r=parseFloat(c[si+(isCash?2:1)]);   /* 該幣別無現金或即期牌價時互補 */
@@ -1760,7 +1760,7 @@ function parseBOTMonthCsv(text, yyyymmdd, isCash){
     const d=(c[0]||'').trim();
     if(!/^\d{8}$/.test(d)) return;              /* 跳過表頭 */
     let si=-1;
-    for(let k=2;k<c.length;k++){ if(c[k].indexOf('賣出')>=0){ si=k; break; } }
+    for(let k=2;k<c.length;k++){ if(c[k].indexOf('賣出')>=0||c[k].indexOf('Selling')>=0){ si=k; break; } }
     if(si<0) return;
     rows.push({d, cash:parseFloat(c[si+1]), spot:parseFloat(c[si+2])});
   });
@@ -1789,7 +1789,8 @@ async function fetchTextViaProxy(url, ms){
       const r=await fetch(mk(url),{signal:ctl.signal,cache:'no-cache'});
       if(!r.ok){ last=`HTTP ${r.status}`; continue; }
       const txt=await r.text();
-      if(txt && txt.indexOf('賣出')>=0) return txt;
+      /* r.jina.ai 會把中文欄名翻成 Buying/Selling，兩種都接受 */
+      if(txt && (txt.indexOf('賣出')>=0 || txt.indexOf('Selling')>=0)) return txt;
       last='內容不符';
     }catch(e){ last=(e.name==='AbortError')?'逾時':e.message; }
     finally{ clearTimeout(timer); }
