@@ -1708,14 +1708,28 @@ function calcFx(px,i){
   calcAll();
 }
 
-/* 解析 BOT CSV → 匯率
-   台銀 CSV 固定欄序：幣別[0] 現金買入[1] 現金賣出[2] 即期買入[3] 即期賣出[4] … */
+/* 解析台銀「當日全幣別 CSV」→ 匯率
+   2026 新欄序：幣別,「本行買入」,現金買入,即期買入,遠期*7,「本行賣出」,現金賣出,即期賣出,遠期*7
+   舊欄序（保留相容）：幣別,現金買入,現金賣出,即期買入,即期賣出 … */
 function parseBOTcsv(text, currency, isCash){
   if(!text) return null;
-  const lines=text.split('\n').filter(l=>l.trim());
-  let rateIdx=-1, startIdx=0;
+  const cur=currency.toUpperCase();
+  const lines=text.replace(/^﻿/,'').split(/\r?\n/).filter(l=>l.trim());
 
-  /* ── 方法一：以 header 名稱找欄位（UTF-8 正常解碼）*/
+  /* ── 新版：以列內「本行賣出」標記定位 ── */
+  for(const line of lines){
+    const c=line.split(',');
+    if(!c[0]||c[0].trim().toUpperCase()!==cur) continue;
+    let si=-1;
+    for(let k=1;k<c.length;k++){ if(c[k].indexOf('賣出')>=0){ si=k; break; } }
+    if(si<0) continue;
+    let r=parseFloat(c[si+(isCash?1:2)]);
+    if(!(r>0)) r=parseFloat(c[si+(isCash?2:1)]);   /* 該幣別無現金或即期牌價時互補 */
+    if(r>0) return r;
+  }
+
+  /* ── 舊版：以表頭名稱 / 固定欄位定位 ── */
+  let rateIdx=-1, startIdx=0;
   for(let k=0;k<lines.length;k++){
     if(lines[k].includes('現金買入')||lines[k].includes('即期買入')){
       const hdrs=lines[k].split(',');
@@ -1723,23 +1737,64 @@ function parseBOTcsv(text, currency, isCash){
       if(rateIdx>=0){ startIdx=k+1; break; }
     }
   }
-
-  /* ── 方法二：位置 fallback（Big5 被誤判為 UTF-8 → header 亂碼）
-        台銀固定欄序：現金賣出=2，即期賣出=4 */
-  if(rateIdx<0){
-    rateIdx = isCash ? 2 : 4;
-    startIdx = 0;
-  }
-
-  /* ── 找幣別行（幣別代碼為 ASCII，不受編碼影響）*/
+  if(rateIdx<0){ rateIdx = isCash ? 2 : 4; startIdx = 0; }
   for(let k=startIdx;k<lines.length;k++){
     const cols=lines[k].split(',');
-    if(cols.length>rateIdx && cols[0] && cols[0].toUpperCase().includes(currency.toUpperCase())){
+    if(cols.length>rateIdx && cols[0] && cols[0].toUpperCase().includes(cur)){
       const r=parseFloat(cols[rateIdx]);
       if(!isNaN(r)&&r>0) return r;
     }
   }
   return null;
+}
+
+/* 解析台銀「月檔單一幣別 CSV」→ {rate, dataDate, exact}
+   端點：https://rate.bot.com.tw/xrt/flcsv/0/YYYY-MM/USD
+   欄序：資料日期,幣別,「本行買入」,現金,即期,遠期*7,「本行賣出」,現金,即期,遠期*7 */
+function parseBOTMonthCsv(text, yyyymmdd, isCash){
+  if(!text) return null;
+  const rows=[];
+  text.replace(/^﻿/,'').split(/\r?\n/).forEach(line=>{
+    const c=line.split(',');
+    if(c.length<15) return;
+    const d=(c[0]||'').trim();
+    if(!/^\d{8}$/.test(d)) return;              /* 跳過表頭 */
+    let si=-1;
+    for(let k=2;k<c.length;k++){ if(c[k].indexOf('賣出')>=0){ si=k; break; } }
+    if(si<0) return;
+    rows.push({d, cash:parseFloat(c[si+1]), spot:parseFloat(c[si+2])});
+  });
+  if(!rows.length) return null;
+  rows.sort((a,b)=>a.d<b.d?1:-1);               /* 新 → 舊 */
+  const hit=rows.find(r=>r.d<=yyyymmdd);        /* 當日；非營業日則取前一營業日 */
+  if(!hit) return null;
+  let rate=isCash?hit.cash:hit.spot;
+  if(!(rate>0)) rate=isCash?hit.spot:hit.cash;
+  if(!(rate>0)) return null;
+  return {rate, dataDate:`${hit.d.slice(0,4)}-${hit.d.slice(4,6)}-${hit.d.slice(6,8)}`, exact:hit.d===yyyymmdd};
+}
+
+/* 透過 CORS Proxy 取回純文字（台銀不開放跨網域直連）*/
+async function fetchTextViaProxy(url, ms){
+  const makers=[
+    u=>`https://proxy.cors.sh/${u}`,
+    u=>`https://r.jina.ai/${u}`,
+    u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
+  ];
+  let last='';
+  for(const mk of makers){
+    const ctl=new AbortController();
+    const timer=setTimeout(()=>ctl.abort(), ms||8000);
+    try{
+      const r=await fetch(mk(url),{signal:ctl.signal,cache:'no-cache'});
+      if(!r.ok){ last=`HTTP ${r.status}`; continue; }
+      const txt=await r.text();
+      if(txt && txt.indexOf('賣出')>=0) return txt;
+      last='內容不符';
+    }catch(e){ last=(e.name==='AbortError')?'逾時':e.message; }
+    finally{ clearTimeout(timer); }
+  }
+  throw new Error(last||'代理全部失敗');
 }
 
 /* 解析 BOT 歷史查詢 HTML 頁面 → 匯率 */
@@ -1791,7 +1846,7 @@ function fetchViaGAS(yyyymmdd, currency, isCash){
     const cbName='_gasBot_'+Date.now()+'_'+Math.floor(Math.random()*99999);
     let script=null;
     const cleanup=()=>{ try{delete window[cbName];}catch(e){} script?.remove(); };
-    const timer=setTimeout(()=>{ cleanup(); reject(new Error('GAS逾時')); },20000);
+    const timer=setTimeout(()=>{ cleanup(); reject(new Error('GAS逾時')); },10000);
     window[cbName]=function(data){
       clearTimeout(timer); cleanup();
       if(!data.ok) reject(new Error('GAS: '+data.error));
@@ -1975,7 +2030,7 @@ function fetchViaJSONP(url){
     const cbName='_botJP_'+Date.now()+'_'+Math.floor(Math.random()*99999);
     let script=null;
     const cleanup=()=>{ try{delete window[cbName];}catch(e){} script?.remove(); };
-    const timer=setTimeout(()=>{ cleanup(); reject(new Error('逾時')); },12000);
+    const timer=setTimeout(()=>{ cleanup(); reject(new Error('逾時')); },7000);
     window[cbName]=function(data){
       clearTimeout(timer); cleanup();
       const code=data?.status?.http_code;
@@ -2055,21 +2110,44 @@ async function fetchBOTRate(px,i){
   const currency=curEl?.value||'USD';
   const baseDate=dateEl.value.replace(/-/g,'');
 
-  lblEl.innerHTML='<span style="color:#888">查詢中…</span>';
+  const btn=document.querySelector(`[onclick="fetchBOTRate('${px}',${i})"]`);
+  const btnTxt=btn?btn.textContent:'';
+  if(btn){ btn.disabled=true; btn.textContent='查詢中…'; }
+  lblEl.innerHTML='<span style="color:#888">查詢台銀匯率中…</span>';
 
   let rate=null, usedDate='', lastErr='', lastSrc='', lastSnapshotDate='', offset=0;
-  while(offset<=7){  /* 最多往前 7 天，跨越長假期 */
-    const tryDate=botDateOffset(baseDate,offset);
-    const d=`${tryDate.slice(0,4)}/${tryDate.slice(4,6)}/${tryDate.slice(6,8)}`;
-    lblEl.innerHTML=`<span style="color:#888">查詢 ${d}…</span>`;
-    const res=await tryFetchBOTDay(tryDate,currency,isCash);
-    if(res.rate!==null){
-      rate=res.rate; usedDate=tryDate; lastSrc=res.src||'';
-      lastSnapshotDate=res.snapshotDate||'';
-      break;
+  try{
+    /* ① GAS Proxy（伺服器端直連台銀，最快最穩）*/
+    try{
+      const g=await fetchViaGAS(baseDate,currency,isCash);
+      if(g&&g.rate!==null&&!isNaN(g.rate)){
+        rate=+g.rate; lastSrc=g.src||'bot_csv'; lastSnapshotDate=g.snapshotDate||'';
+      }
+    }catch(e){ lastErr='[GAS] '+e.message; }
+
+    /* ② 台銀月檔 CSV（含整月每日牌價，非營業日自動取前一營業日）*/
+    if(rate===null){
+      lblEl.innerHTML='<span style="color:#888">改用台銀月檔查詢…</span>';
+      const y=+baseDate.slice(0,4), m=+baseDate.slice(4,6);
+      const ym  = `${y}-${String(m).padStart(2,'0')}`;
+      const pm  = m>1 ? `${y}-${String(m-1).padStart(2,'0')}` : `${y-1}-12`;
+      for(const mon of [ym,pm]){
+        try{
+          const txt=await fetchTextViaProxy(`https://rate.bot.com.tw/xrt/flcsv/0/${mon}/${currency}`,8000);
+          const hit=parseBOTMonthCsv(txt,baseDate,isCash);
+          if(hit){ rate=hit.rate; lastSrc=hit.exact?'bot_csv':'bot_csv_prev'; lastSnapshotDate=hit.dataDate; break; }
+          lastErr=(lastErr?lastErr+' | ':'')+`[月檔 ${mon}] 查無 ${currency}`;
+        }catch(e){ lastErr=(lastErr?lastErr+' | ':'')+`[月檔 ${mon}] `+e.message; }
+      }
     }
-    lastErr=res.err||''; offset++;
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent=btnTxt; }
   }
+  if(rate!==null){
+    usedDate = lastSnapshotDate ? lastSnapshotDate.replace(/-/g,'') : baseDate;
+    offset   = (usedDate===baseDate) ? 0 : 1;
+  }
+  if(lastErr) console.warn('[匯率查詢]', lastErr);
 
   if(rate!==null){
     const rtype=isCash?'現金賣出':'即期賣出';
@@ -3156,6 +3234,6 @@ window.addEventListener('load', ()=>{
 </script>
 
 <!-- 版本號 -->
-<div id="app-version" style="position:fixed;bottom:8px;right:12px;font-size:10px;color:rgba(0,0,0,.25);pointer-events:none;z-index:9999;user-select:none;">v2026.06.23</div>
+<div id="app-version" style="position:fixed;bottom:8px;right:12px;font-size:10px;color:rgba(0,0,0,.25);pointer-events:none;z-index:9999;user-select:none;">v2026.09.02</div>
 </body>
 </html>
