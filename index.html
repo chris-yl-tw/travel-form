@@ -898,7 +898,7 @@ function fetchGASEmp(params){
     const idToken=getIdToken();
     if(!idToken){ reject(new Error('登入已過期，請重新整理頁面登入')); return; }
     const ctl=new AbortController();
-    const timer=setTimeout(()=>ctl.abort(),15000);
+    const timer=setTimeout(()=>ctl.abort(),25000);
     fetch(GAS_BOT_PROXY,{
       method:'POST',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
@@ -938,12 +938,11 @@ function onEmpIdInput(val){
 }
 
 /* ══════════════════════════════════════════
-   Google Sheets 旅遊申請資料自動帶入
-   ► 使用 Google Visualization JSONP（script tag）
-     完全不受 file:// CORS 限制
+   旅遊申請資料自動帶入
+   2026-09：原本用 GViz 從瀏覽器直接讀整張試算表，等於把試算表 ID
+   印在公開網頁上，任何人都能取走全部申請記錄。改為透過 GAS 查詢，
+   需通過 Google ID token 驗證，且只回傳指定工號的那幾列。
 ══════════════════════════════════════════ */
-const GSHEET_ID  = '1FCmwlAaRaNPOqZPRWaSiPqKG6lnAaWwdkTQ2rg_QmE8';
-const GSHEET_GID = '1209163089';
 
 /* ── 台銀匯率 GAS Proxy（部署後貼入網址）──
    設定方式：script.google.com 部署網路應用程式後，將網址貼到下方
@@ -981,56 +980,6 @@ function gsStatus(type,msg){
 }
 function gsStatusHide(){const el=document.getElementById('gs-status-bar');if(el)el.style.display='none';}
 
-/* ── GViz 日期值 "Date(2026,0,14)" → "2026/1/14" ── */
-function gvizCellStr(cell){
-  if(!cell||cell.v===null||cell.v===undefined) return '';
-  /* 優先用格式化值（f），通常已是可讀字串 */
-  if(cell.f!=null) return String(cell.f);
-  const v=String(cell.v);
-  /* Date(year, month0, day) */
-  const dm=v.match(/^Date\((\d+),(\d+),(\d+)\)$/);
-  if(dm) return `${dm[1]}/${+dm[2]+1}/${dm[3]}`;
-  /* DateTime(year, month0, day, h, m, s) */
-  const dtm=v.match(/^Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)$/);
-  if(dtm){
-    const h=+dtm[4], ap=h<12?'上午':'下午', hh=h===0?12:h>12?h-12:h;
-    return `${dtm[1]}/${+dtm[2]+1}/${dtm[3]} ${ap} ${hh}:${dtm[5].padStart(2,'0')}:${dtm[6].padStart(2,'0')}`;
-  }
-  return v;
-}
-
-/* ── JSONP 透過 Google Visualization API 載入（繞過 CORS）── */
-function loadGSViaGViz(){
-  return new Promise((resolve,reject)=>{
-    const cbName='_gsVizCb_'+Date.now();
-    let script=null;
-    const cleanup=()=>{ try{delete window[cbName];}catch(e){} script?.remove(); };
-
-    const timer=setTimeout(()=>{ cleanup(); reject(new Error('連線逾時 (15s)，請確認網路')); },15000);
-
-    window[cbName]=function(resp){
-      clearTimeout(timer); cleanup();
-      try{
-        if(resp.status==='error'){
-          const msg=(resp.errors||[{}])[0].detailed_message||(resp.errors||[{}])[0].message||'GViz API 錯誤';
-          reject(new Error(msg)); return;
-        }
-        const tbl=resp.table;
-        const headers=tbl.cols.map(c=>c.label||c.id||'');
-        const colTypes=tbl.cols.map(c=>c.type||'string');
-        const rows=tbl.rows.map(row=>(row.c||[]).map(cell=>gvizCellStr(cell)));
-        resolve({headers,colTypes,rows});
-      }catch(e){ reject(e); }
-    };
-
-    script=document.createElement('script');
-    script.src=`https://docs.google.com/spreadsheets/d/${GSHEET_ID}/gviz/tq`+
-               `?gid=${GSHEET_GID}&tqx=out:json;responseHandler:${cbName}&_=${Date.now()}`;
-    script.onerror=()=>{ clearTimeout(timer); cleanup(); reject(new Error('Script 載入失敗（網路或試算表未公開）')); };
-    document.head.appendChild(script);
-  });
-}
-
 /* ── 解析中文時間戳記 → timestamp ── */
 function parseGSTimestamp(ts){
   if(!ts) return 0;
@@ -1053,26 +1002,25 @@ function showGSDebugHeaders(){
     <button onclick="gsStatusHide()" style="margin-top:4px;font-size:11px;padding:2px 10px;cursor:pointer;">關閉</button>`);
 }
 
-async function loadGSData(){
-  if(_gsData!==null) return _gsData;
-  gsStatus('loading','⏳ 正在從試算表載入旅遊申請資料…');
+async function loadGSData(empId){
+  gsStatus('loading','⏳ 正在查詢旅遊申請資料…');
   try{
-    const {headers,colTypes,rows}=await loadGSViaGViz();
-    _gsHeaders=headers;
-    _gsColTypes=colTypes;
-    _gsData=rows;
-    console.log('GS 載入成功，標題:',headers,'欄型別:',colTypes,'共',rows.length,'筆');
+    const d = await fetchGASEmp({action:'getTrip', empId});
+    _gsHeaders  = d.headers  || [];
+    _gsColTypes = d.colTypes || [];
+    _gsData     = d.rows     || [];
+    gsStatusHide();
     return _gsData;
   }catch(e){
-    console.error('GS 載入失敗:',e);
-    _gsData=[];
-    gsStatus('err',`❌ 試算表載入失敗：${e.message}<br>
-      <span style="font-size:11px;">請確認：①試算表已設為「任何人可檢視」②網路連線正常</span><br>
-      <button onclick="_gsData=null;autoFillFromGSheet(_gsPending)"
+    console.error('旅遊申請查詢失敗:',e);
+    _gsData=null;
+    gsStatus('err',`❌ 旅遊申請資料查詢失敗：${e.message}<br>
+      <span style="font-size:11px;">若顯示「登入已過期」，請重新整理頁面登入後再試。</span><br>
+      <button onclick="autoFillFromGSheet(_gsPending)"
         style="margin-top:4px;font-size:11px;padding:2px 10px;cursor:pointer;">🔄 重試</button>
       <button onclick="gsStatusHide()"
         style="margin-left:6px;font-size:11px;padding:2px 10px;cursor:pointer;">關閉</button>`);
-    return [];
+    return null;
   }
 }
 
@@ -1102,8 +1050,9 @@ async function autoFillFromGSheet(empId){
   if(!empId) return;
   _gsPending=empId;
   gsStatusHide();
-  const rows=await loadGSData();
-  if(!rows.length) return;   // 錯誤已由 loadGSData 顯示
+  const rows=await loadGSData(empId);
+  if(rows===null) return;            // 查詢失敗，訊息已由 loadGSData 顯示
+  if(!rows.length){ showGSDebugHeaders(); return; }
 
   /* ── 自動偵測欄位位置 ── */
   const H=_gsHeaders||[];
