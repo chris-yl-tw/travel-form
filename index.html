@@ -1798,6 +1798,8 @@ function renderTrips(){
       fPayCash: document.getElementById(`t${i}_pay_cash`)?.checked||false,
       fPayCard: document.getElementById(`t${i}_pay_card`)?.checked||false,
       frecdate: document.getElementById(`t${i}_frecdate`)?.value||'',
+      ns:       document.getElementById(`t${i}_ns`)?.value||'',
+      nsManual: document.getElementById(`t${i}_ns`)?.dataset.manual||'',
       frate:    document.getElementById(`t${i}_frate`)?.value||'',
       fratelbl: document.getElementById(`t${i}_frate_lbl`)?.innerHTML||''
     };
@@ -1872,7 +1874,14 @@ function renderTrips(){
         <div id="t${i}-nonsub-detail" style="display:none;background:#fff8f8;border-radius:6px;margin:2px 0 6px 0;padding:7px 14px;border-left:3px solid #e74c3c;">
           <div class="trip-card-row" style="margin-bottom:5px;">
             <span class="row-label" style="color:#666;">非補助人數</span>
-            <span id="t${i}_nonsub_count" style="color:#c0392b;font-weight:bold;">0 人</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;">
+              <input type="number" id="t${i}_ns" min="0" step="1"
+                style="width:58px;border:1px solid #e0a9a9;border-radius:5px;background:#fff;padding:3px 8px;
+                       color:#c0392b;font-weight:bold;font-family:inherit;font-size:12px;text-align:center;"
+                oninput="onItemNSInput('t',${i})" onchange="onItemNSCommit('t',${i})">
+              <span style="color:#c0392b;font-weight:bold;">人</span>
+              <span id="t${i}_ns_hint" style="font-size:10.5px;color:#c0392b;"></span>
+            </span>
           </div>
           <div class="trip-card-row" style="margin-bottom:5px;">
             <span class="row-label" style="color:#c0392b;">扣除金額（台幣＋手續費）</span>
@@ -1919,9 +1928,11 @@ function renderTrips(){
       if(v.nonsub){
         document.getElementById(`t${i}_nonsub_yes`).checked=true;
         document.getElementById(`t${i}-nonsub-detail`).style.display='';
-        const ns=document.getElementById('non_sub')?.value||'0';
-        const ec=document.getElementById(`t${i}_nonsub_count`);
-        if(ec) ec.textContent=`${ns} 人`;
+      }
+      const nsEl=document.getElementById(`t${i}_ns`);
+      if(nsEl){
+        if(v.nsManual==='1'){ nsEl.dataset.manual='1'; nsEl.value=v.ns; }
+        syncItemNS('t',i);
       }
     }
   }
@@ -1980,6 +1991,8 @@ function renderHotels(){
       fPayCash: document.getElementById(`h${i}_pay_cash`)?.checked||false,
       fPayCard: document.getElementById(`h${i}_pay_card`)?.checked||false,
       frecdate: document.getElementById(`h${i}_frecdate`)?.value||'',
+      ns:       document.getElementById(`h${i}_ns`)?.value||'',
+      nsManual: document.getElementById(`h${i}_ns`)?.dataset.manual||'',
       frate:    document.getElementById(`h${i}_frate`)?.value||'',
       fratelbl: document.getElementById(`h${i}_frate_lbl`)?.innerHTML||''
     };
@@ -2048,7 +2061,14 @@ function renderHotels(){
         <div id="h${i}-nonsub-detail" style="display:none;background:#fff8f8;border-radius:6px;margin:2px 0 6px 0;padding:7px 14px;border-left:3px solid #e74c3c;">
           <div class="trip-card-row" style="margin-bottom:5px;">
             <span class="row-label" style="color:#666;">非補助人數</span>
-            <span id="h${i}_nonsub_count" style="color:#c0392b;font-weight:bold;">0 人</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;">
+              <input type="number" id="h${i}_ns" min="0" step="1"
+                style="width:58px;border:1px solid #e0a9a9;border-radius:5px;background:#fff;padding:3px 8px;
+                       color:#c0392b;font-weight:bold;font-family:inherit;font-size:12px;text-align:center;"
+                oninput="onItemNSInput('h',${i})" onchange="onItemNSCommit('h',${i})">
+              <span style="color:#c0392b;font-weight:bold;">人</span>
+              <span id="h${i}_ns_hint" style="font-size:10.5px;color:#c0392b;"></span>
+            </span>
           </div>
           <div class="trip-card-row" style="margin-bottom:5px;">
             <span class="row-label" style="color:#c0392b;">扣除金額（台幣＋手續費）</span>
@@ -2091,9 +2111,11 @@ function renderHotels(){
     if(saved[i].nonsub){
       document.getElementById(`h${i}_nonsub_yes`).checked=true;
       document.getElementById(`h${i}-nonsub-detail`).style.display='';
-      const ns=document.getElementById('non_sub')?.value||'0';
-      const ec=document.getElementById(`h${i}_nonsub_count`);
-      if(ec) ec.textContent=`${ns} 人`;
+    }
+    const nsElH=document.getElementById(`h${i}_ns`);
+    if(nsElH){
+      if(saved[i].nsManual==='1'){ nsElH.dataset.manual='1'; nsElH.value=saved[i].ns; }
+      syncItemNS('h',i);
     }
   }
   // 按鈕狀態
@@ -2150,6 +2172,62 @@ function calcPpl(){
   document.getElementById('tot_ppl').value = total || '';
 }
 
+/* ══════════════════════════════════════════
+   每張趟次／飯店卡片各自的非補助人數
+   ・預設跟著表單上方的「非補助人數」
+   ・使用者動過該張卡片後（dataset.manual='1'）就保留自己填的值
+   ・上限＝表單人數，不得超過
+   ══════════════════════════════════════════ */
+function formNS(){ const v=parseInt(document.getElementById('non_sub')?.value,10); return isNaN(v)||v<0?0:v; }
+
+/* 這張卡片實際要用的非補助人數（已夾在 0～表單人數之間） */
+function itemNS(px,i){
+  const max=formNS();
+  const el=document.getElementById(`${px}${i}_ns`);
+  if(!el || el.dataset.manual!=='1') return max;
+  let v=parseInt(el.value,10);
+  if(isNaN(v)||v<0) v=0;
+  if(v>max) v=max;
+  return v;
+}
+
+function nsHint(px,i,msg){
+  const el=document.getElementById(`${px}${i}_ns_hint`);
+  if(el) el.textContent=msg||'';
+}
+
+/* 輸入中：標記為手動、即時重算（不動畫面上的字，避免打字跳動） */
+function onItemNSInput(px,i){
+  const el=document.getElementById(`${px}${i}_ns`);
+  if(!el) return;
+  el.dataset.manual='1';
+  const max=formNS();
+  const v=parseInt(el.value,10);
+  nsHint(px,i, (!isNaN(v)&&v>max) ? `最多 ${max} 人` : '');
+  calcAll();
+}
+
+/* 離開欄位：把值正規化成 0～上限的整數 */
+function onItemNSCommit(px,i){
+  const el=document.getElementById(`${px}${i}_ns`);
+  if(!el) return;
+  const max=formNS();
+  let v=parseInt(el.value,10);
+  if(isNaN(v)||v<0) v=0;
+  if(v>max) v=max;
+  el.value=v;
+  nsHint(px,i,'');
+  calcAll();
+}
+
+/* 未手動調整過的卡片，跟著表單人數更新顯示值 */
+function syncItemNS(px,i){
+  const el=document.getElementById(`${px}${i}_ns`);
+  if(!el) return;
+  el.max=formNS();
+  if(el.dataset.manual!=='1') el.value=formNS();
+}
+
 /* ── 計算 ── */
 const N=id=>{const v=parseFloat(document.getElementById(id)?.value);return isNaN(v)?0:v};
 const R1=v=>Math.round(v*10)/10;
@@ -2164,20 +2242,27 @@ function calcAll(){
   for(let i=1;i<=4;i++){
     const twd=N(`t${i}_twd`), fee=N(`t${i}_fee`)+N(`t${i}_twdfee`);
     const hasNS=document.getElementById(`t${i}_nonsub_yes`)?.checked;
-    if(hasNS && totalPpl>0){
+    syncItemNS('t',i);
+    const nsT=itemNS('t',i);
+    const denomT=totPpl+nsT;
+    if(hasNS && nsT>0 && denomT>0){
       const cost=twd+fee;
-      const deduct=R1(cost*nonSub/totalPpl);
+      const deduct=R1(cost*nsT/denomT);
       const net=R1(cost-deduct);
-      const ec=document.getElementById(`t${i}_nonsub_count`);
       const ed=document.getElementById(`t${i}_deduct`);
       const en=document.getElementById(`t${i}_net`);
-      if(ec) ec.textContent=`${nonSub} 人`;
       if(ed) ed.textContent=`- ${FMT(deduct)} 元`;
       if(en) en.textContent=`${FMT(net)} 元`;
-      window._tripData[i]={hasNS:true,deduct,net};
+      window._tripData[i]={hasNS:true,deduct,net,ns:nsT};
       tkt+=net;
     } else {
-      window._tripData[i]={hasNS:false,deduct:0,net:0};
+      const ed=document.getElementById(`t${i}_deduct`);
+      const en=document.getElementById(`t${i}_net`);
+      if(hasNS){
+        if(ed) ed.textContent=`- 0 元`;
+        if(en) en.textContent=`${FMT(R1(twd+fee))} 元`;
+      }
+      window._tripData[i]={hasNS:false,deduct:0,net:0,ns:nsT};
       tkt+=twd+fee;
     }
   }
@@ -2189,20 +2274,27 @@ function calcAll(){
   for(let i=1;i<=8;i++){
     const twd=N(`h${i}_twd`), fee=N(`h${i}_fee`)+N(`h${i}_twdfee`);
     const hasNS=document.getElementById(`h${i}_nonsub_yes`)?.checked;
-    if(hasNS && totalPpl>0){
+    syncItemNS('h',i);
+    const nsH=itemNS('h',i);
+    const denomH=totPpl+nsH;
+    if(hasNS && nsH>0 && denomH>0){
       const cost=twd+fee;
-      const deduct=R1(cost*nonSub/totalPpl);
+      const deduct=R1(cost*nsH/denomH);
       const net=R1(cost-deduct);
-      const ec=document.getElementById(`h${i}_nonsub_count`);
       const ed=document.getElementById(`h${i}_deduct`);
       const en=document.getElementById(`h${i}_net`);
-      if(ec) ec.textContent=`${nonSub} 人`;
       if(ed) ed.textContent=`- ${FMT(deduct)} 元`;
       if(en) en.textContent=`${FMT(net)} 元`;
-      window._htlData[i]={hasNS:true,deduct,net};
+      window._htlData[i]={hasNS:true,deduct,net,ns:nsH};
       htl+=net;
     } else {
-      window._htlData[i]={hasNS:false,deduct:0,net:0};
+      const ed=document.getElementById(`h${i}_deduct`);
+      const en=document.getElementById(`h${i}_net`);
+      if(hasNS){
+        if(ed) ed.textContent=`- 0 元`;
+        if(en) en.textContent=`${FMT(R1(twd+fee))} 元`;
+      }
+      window._htlData[i]={hasNS:false,deduct:0,net:0,ns:nsH};
       htl+=twd+fee;
     }
   }
@@ -2240,11 +2332,7 @@ function calcAll(){
 function onTripNonSubChange(i){
   const hasNS=document.getElementById(`t${i}_nonsub_yes`)?.checked;
   document.getElementById(`t${i}-nonsub-detail`).style.display=hasNS?'':'none';
-  if(hasNS){
-    const ns=document.getElementById('non_sub')?.value||'0';
-    const el=document.getElementById(`t${i}_nonsub_count`);
-    if(el) el.textContent=`${ns} 人`;
-  }
+  if(hasNS) syncItemNS('t',i);
   calcAll();
 }
 
@@ -2252,11 +2340,7 @@ function onTripNonSubChange(i){
 function onHotelNonSubChange(i){
   const hasNS=document.getElementById(`h${i}_nonsub_yes`)?.checked;
   document.getElementById(`h${i}-nonsub-detail`).style.display=hasNS?'':'none';
-  if(hasNS){
-    const ns=document.getElementById('non_sub')?.value||'0';
-    const el=document.getElementById(`h${i}_nonsub_count`);
-    if(el) el.textContent=`${ns} 人`;
-  }
+  if(hasNS) syncItemNS('h',i);
   calcAll();
 }
 
@@ -2501,7 +2585,7 @@ function buildPreview(){
       if(td.hasNS){
         html+=`<tr>
           <td colspan="4" style="${lblSt};font-size:10px;color:#c0392b;">非補助人數</td>
-          <td colspan="4" style="${valSt};color:#c0392b;">${N('non_sub')} 人</td>
+          <td colspan="4" style="${valSt};color:#c0392b;">${td.ns} 人</td>
           <td colspan="4" style="${lblSt};font-size:10px;color:#c0392b;">扣除金額<br>（台幣＋手續費）</td>
           <td colspan="4" style="${valSt};color:#c0392b;">- ${FMT(td.deduct)} 元</td>
         </tr>
@@ -2544,7 +2628,7 @@ function buildPreview(){
       if(hd.hasNS){
         html+=`<tr>
           <td colspan="4" style="${lblSt};font-size:10px;color:#c0392b;">非補助人數</td>
-          <td colspan="4" style="${valSt};color:#c0392b;">${N('non_sub')} 人</td>
+          <td colspan="4" style="${valSt};color:#c0392b;">${hd.ns} 人</td>
           <td colspan="4" style="${lblSt};font-size:10px;color:#c0392b;">扣除金額<br>（台幣＋手續費）</td>
           <td colspan="4" style="${valSt};color:#c0392b;">- ${FMT(hd.deduct)} 元</td>
         </tr>
