@@ -1775,9 +1775,9 @@ async function fetchBOTRate(px,i){
 }
 
 /* ── 趟次管理 ── */
-const TRIP_LABELS = ['一','二','三','四'];
+const TRIP_LABELS = ['一','二','三','四','五','六'];
 let _tripCount = 1;
-const MAX_TRIPS = 4;
+const MAX_TRIPS = 6;
 
 function renderTrips(){
   const container = document.getElementById('trip-cards');
@@ -1940,7 +1940,7 @@ function renderTrips(){
   const btn = document.getElementById('btn-add-trip');
   if(btn){
     btn.disabled = _tripCount>=MAX_TRIPS;
-    btn.textContent = _tripCount>=MAX_TRIPS ? '已達上限（4趟）' : '＋ 新增趟次';
+    btn.textContent = _tripCount>=MAX_TRIPS ? `已達上限（${MAX_TRIPS}趟）` : '＋ 新增趟次';
     btn.style.opacity = _tripCount>=MAX_TRIPS ? '.5' : '1';
   }
 }
@@ -2239,7 +2239,7 @@ function calcAll(){
   /* ── 機票：逐趟計算，若有非補助則按比例扣除 ── */
   window._tripData={};
   let tkt=0;
-  for(let i=1;i<=4;i++){
+  for(let i=1;i<=MAX_TRIPS;i++){
     const twd=N(`t${i}_twd`), fee=N(`t${i}_fee`)+N(`t${i}_twdfee`);
     const hasNS=document.getElementById(`t${i}_nonsub_yes`)?.checked;
     syncItemNS('t',i);
@@ -2271,7 +2271,7 @@ function calcAll(){
   /* ── 住宿：逐間計算 ── */
   window._htlData={};
   let htl=0;
-  for(let i=1;i<=8;i++){
+  for(let i=1;i<=MAX_HOTELS;i++){
     const twd=N(`h${i}_twd`), fee=N(`h${i}_fee`)+N(`h${i}_twdfee`);
     const hasNS=document.getElementById(`h${i}_nonsub_yes`)?.checked;
     syncItemNS('h',i);
