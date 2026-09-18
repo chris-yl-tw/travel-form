@@ -892,13 +892,11 @@ function getIdToken(){
 
 /* 員工資料 API：POST + text/plain（避開 CORS 預檢），body 夾帶 ID token
    GAS 端會向 Google 驗證 token 的 aud / hd / exp，通過才回資料 */
-function fetchGASEmp(params){
+/* 單次 POST；逾時或回傳非 JSON 都視為失敗 */
+function gasPostOnce(params, idToken, ms){
   return new Promise((resolve,reject)=>{
-    if(!GAS_BOT_PROXY){ reject(new Error('GAS未設定')); return; }
-    const idToken=getIdToken();
-    if(!idToken){ reject(new Error('登入已過期，請重新整理頁面登入')); return; }
     const ctl=new AbortController();
-    const timer=setTimeout(()=>ctl.abort(),25000);
+    const timer=setTimeout(()=>ctl.abort(), ms);
     fetch(GAS_BOT_PROXY,{
       method:'POST',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
@@ -915,6 +913,31 @@ function fetchGASEmp(params){
     .catch(e=>reject(new Error(e.name==='AbortError'?'連線逾時':e.message)))
     .finally(()=>clearTimeout(timer));
   });
+}
+
+/* Apps Script 偶發會回錯誤頁或逾時（實測約每十幾次一次），
+   失敗自動重試一次，多數情況使用者不會察覺。
+   身分驗證失敗重試也沒用，直接丟出。 */
+const GAS_RETRY_TIMES = 2;
+async function fetchGASEmp(params){
+  if(!GAS_BOT_PROXY) throw new Error('GAS未設定');
+  const idToken=getIdToken();
+  if(!idToken) throw new Error('登入已過期，請重新整理頁面登入');
+
+  let lastErr=null;
+  for(let n=1;n<=GAS_RETRY_TIMES;n++){
+    try{
+      return await gasPostOnce(params, idToken, 25000);
+    }catch(e){
+      lastErr=e;
+      if(/未通過身分驗證|已停用|登入已過期/.test(e.message)) throw e;
+      if(n<GAS_RETRY_TIMES){
+        console.warn(`[GAS] 第 ${n} 次失敗（${e.message}），1 秒後重試`);
+        await new Promise(r=>setTimeout(r,1000));
+      }
+    }
+  }
+  throw lastErr;
 }
 
 function refreshDatalist(){
