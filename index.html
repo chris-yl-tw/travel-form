@@ -1356,6 +1356,11 @@ function deleteEmp(i){
 /* ══════════════════════════════════════════
    外幣 / 台灣銀行匯率查詢
 ══════════════════════════════════════════ */
+/* 自動查詢匯率的來源記錄：key = 't1' / 'h1' …
+   值 {rate, date, src}，供列印頁顯示「匯率日期」用。
+   若使用者事後手動改了匯率，rate 對不上就會被視為手動輸入。 */
+const _fxMeta = {};
+
 /* 幣別選項 */
 const FX_CURRENCY_OPTIONS = [
   ['USD','美元'],['HKD','港幣'],['GBP','英鎊'],['AUD','澳幣'],
@@ -1885,6 +1890,16 @@ async function fetchBOTRate(px,i){
       note=` <span style="color:#27ae60;font-size:10.5px;">✅ ${origStr} 非台銀營業日，已自動採用前一營業日（${dStr}）匯率</span>`;
     }
     lblEl.innerHTML=`✔ ${rtype}匯率：<b style="color:var(--navy2)">${rate}</b>${note}`;
+    /* 記錄匯率實際來自哪一天、哪個來源（列印頁要用）*/
+    let metaDate=origStr, metaSrc='台銀官方';
+    if(lastSrc==='bot_csv_prev'||lastSrc==='finmind_approx'){
+      metaDate=lastSnapshotDate?lastSnapshotDate.replace(/-/g,'/'):dStr; metaSrc='台銀前一營業日';
+    } else if(lastSrc==='today_fallback'){
+      metaDate=dStr; metaSrc='今日匯率（待確認）';
+    } else if(offset>0){
+      metaDate=dStr; metaSrc='台銀前一營業日';
+    }
+    _fxMeta[px+i]={rate:String(rate), date:metaDate, src:metaSrc};
     if(rateInp){ rateInp.value=rate; calcFx(px,i); }
   } else {
     const yy=baseDate.slice(0,4),mm=baseDate.slice(4,6),dd=baseDate.slice(6,8);
@@ -1899,6 +1914,7 @@ async function fetchBOTRate(px,i){
 
     if(ref){
       /* 有備用匯率：先帶入，同時提示需以台銀官方數字確認 */
+      _fxMeta[px+i]={rate:String(ref.rate), date:`${yy}/${mm}/${dd}`, src:'參考匯率（非台銀）'};
       if(rateInp){ rateInp.value=ref.rate; calcFx(px,i); }
       lblEl.innerHTML=
         `<span style="color:#e67e22;font-size:11.5px;">⚠ 參考匯率（${ref.src}）：`+
@@ -2547,6 +2563,30 @@ const lblSt='background:var(--lbl-bg);color:#2a3550;font-size:11px;text-align:ce
 const valSt='border:1px solid var(--bdr);padding:6px 8px;font-size:12px;';
 const subSt='background:var(--sub-bg);font-weight:bold;font-size:12px;color:var(--navy);padding:6px 10px;border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);';
 
+/* 現金支付＋外幣 → 產生列印頁的「匯率」列；其餘情況（刷卡／台幣／未填匯率）回空字串
+   匯率日期＝實際採用的牌告日期；遇非營業日會是前一營業日，不一定等於收據日期 */
+function fxRateRow(px, i, labelSpan, valueSpan){
+  const fxYes  = document.getElementById(`${px}${i}_fx_yes`)?.checked;
+  const isCash = document.getElementById(`${px}${i}_pay_cash`)?.checked;
+  if(!fxYes || !isCash) return '';
+  const rate = (document.getElementById(`${px}${i}_frate`)?.value||'').trim();
+  if(!rate) return '';
+
+  const meta = _fxMeta[px+i];
+  let rdate, rsrc;
+  if(meta && meta.rate === rate){
+    rdate = meta.date; rsrc = meta.src;
+  } else {
+    const rec = document.getElementById(`${px}${i}_frecdate`)?.value||'';
+    rdate = rec ? rec.replace(/-/g,'/') : '—';
+    rsrc  = '手動輸入';
+  }
+  return `<tr>
+    <td colspan="${labelSpan}" style="${lblSt};font-size:10px;">匯率（現金賣出）</td>
+    <td colspan="${valueSpan}" style="${valSt}">${rate}　<span style="font-size:11px;color:#5f6b85;">匯率日期 ${rdate}　・　${rsrc}</span></td>
+  </tr>`;
+}
+
 function buildPreview(){
   const isFree=_tripType==='free';
   const tkt=window._tkt||0, htl=window._htl||0, pkg=window._pkg||0;
@@ -2631,6 +2671,7 @@ function buildPreview(){
         <td colspan="6" style="${valSt}">${getV(`t${i}_twd`)}</td>
         <td colspan="6" style="${valSt}">${(tFxYes && tFor)?tFor+' '+tFcur:''}</td>
       </tr>`;
+      html+=fxRateRow('t',i,4,12);
       const tFee=getV(`t${i}_fee`)||getV(`t${i}_twdfee`);
       if(tFee) html+=`<tr>
         <td colspan="4" style="${lblSt};font-size:10px;">信用卡國外交易服務費</td>
@@ -2673,6 +2714,7 @@ function buildPreview(){
         <td colspan="7" style="${valSt}">${getV(`h${i}_twd`)}</td>
         <td colspan="6" style="${valSt}">${(hFxYes && hFor)?hFor+' '+hFcur:''}</td>
       </tr>`;
+      html+=fxRateRow('h',i,3,13);
       const hFee=getV(`h${i}_fee`)||getV(`h${i}_twdfee`);
       if(hFee) html+=`<tr>
         <td colspan="3" style="${lblSt};font-size:10px;">信用卡國外交易服務費</td>
