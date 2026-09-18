@@ -1429,45 +1429,6 @@ function calcFx(px,i){
   calcAll();
 }
 
-/* 解析台銀「當日全幣別 CSV」→ 匯率
-   2026 新欄序：幣別,「本行買入」,現金買入,即期買入,遠期*7,「本行賣出」,現金賣出,即期賣出,遠期*7
-   舊欄序（保留相容）：幣別,現金買入,現金賣出,即期買入,即期賣出 … */
-function parseBOTcsv(text, currency, isCash){
-  if(!text) return null;
-  const cur=currency.toUpperCase();
-  const lines=text.replace(/^﻿/,'').split(/\r?\n/).filter(l=>l.trim());
-
-  /* ── 新版：以列內「本行賣出」標記定位 ── */
-  for(const line of lines){
-    const c=line.split(',');
-    if(!c[0]||c[0].trim().toUpperCase()!==cur) continue;
-    let si=-1;
-    for(let k=1;k<c.length;k++){ if(c[k].indexOf('賣出')>=0||c[k].indexOf('Selling')>=0){ si=k; break; } }
-    if(si<0) continue;
-    let r=parseFloat(c[si+(isCash?1:2)]);
-    if(!(r>0)) r=parseFloat(c[si+(isCash?2:1)]);   /* 該幣別無現金或即期牌價時互補 */
-    if(r>0) return r;
-  }
-
-  /* ── 舊版：以表頭名稱 / 固定欄位定位 ── */
-  let rateIdx=-1, startIdx=0;
-  for(let k=0;k<lines.length;k++){
-    if(lines[k].includes('現金買入')||lines[k].includes('即期買入')){
-      const hdrs=lines[k].split(',');
-      rateIdx=hdrs.findIndex(h=>h.includes(isCash?'現金賣出':'即期賣出'));
-      if(rateIdx>=0){ startIdx=k+1; break; }
-    }
-  }
-  if(rateIdx<0){ rateIdx = isCash ? 2 : 4; startIdx = 0; }
-  for(let k=startIdx;k<lines.length;k++){
-    const cols=lines[k].split(',');
-    if(cols.length>rateIdx && cols[0] && cols[0].toUpperCase().includes(cur)){
-      const r=parseFloat(cols[rateIdx]);
-      if(!isNaN(r)&&r>0) return r;
-    }
-  }
-  return null;
-}
 
 /* 解析台銀「月檔單一幣別 CSV」→ {rate, dataDate, exact}
    端點：https://rate.bot.com.tw/xrt/flcsv/0/YYYY-MM/USD
@@ -1497,10 +1458,12 @@ function parseBOTMonthCsv(text, yyyymmdd, isCash){
 
 /* 透過 CORS Proxy 取回純文字（台銀不開放跨網域直連）*/
 async function fetchTextViaProxy(url, ms){
+  /* 2026-09-18 實測：proxy.cors.sh 已失效、api.codetabs.com 逾時，改用下列三個
+     cors.eu.org 最快且保留中文欄名；r.jina.ai 會把欄名譯成 Buying/Selling（解析已相容）*/
   const makers=[
-    u=>`https://proxy.cors.sh/${u}`,
+    u=>`https://cors.eu.org/${u}`,
     u=>`https://r.jina.ai/${u}`,
-    u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
+    u=>`https://api.cors.lol/?url=${encodeURIComponent(u)}`
   ];
   let last='';
   for(const mk of makers){
@@ -1519,47 +1482,7 @@ async function fetchTextViaProxy(url, ms){
   throw new Error(last||'代理全部失敗');
 }
 
-/* 解析 BOT 歷史查詢 HTML 頁面 → 匯率 */
-function parseBOTHistoryHTML(html, currency, isCash){
-  try{
-    const parser=new DOMParser();
-    const doc=parser.parseFromString(html,'text/html');
-    const rateType=isCash?'現金賣出':'即期賣出';
-    // 找所有 table
-    const tables=doc.querySelectorAll('table');
-    for(const table of tables){
-      // 取表頭（th 或 thead 內 td）
-      const thEls=Array.from(table.querySelectorAll('th'));
-      const headers=thEls.map(h=>h.textContent.replace(/[\s\r\n]/g,''));
-      let rateColIdx=headers.findIndex(h=>h.includes(rateType));
-      if(rateColIdx<0) continue; // 這張 table 沒有目標欄位，跳過
-      // 找幣別列（td）
-      const rows=table.querySelectorAll('tr');
-      for(const row of rows){
-        const cells=Array.from(row.querySelectorAll('td'));
-        if(cells.length<=rateColIdx) continue;
-        const cellText=cells[0].textContent.replace(/[\s\r\n]/g,'');
-        if(cellText.toUpperCase().includes(currency.toUpperCase())){
-          const valText=cells[rateColIdx].textContent.replace(/[,\s\r\n]/g,'');
-          const val=parseFloat(valText);
-          if(!isNaN(val)&&val>0) return val;
-        }
-      }
-    }
-  }catch(e){}
-  return null;
-}
 
-/* 日期往前推 N 天（YYYYMMDD → YYYYMMDD） */
-function botDateOffset(yyyymmdd, days){
-  const d=new Date(
-    parseInt(yyyymmdd.slice(0,4)),
-    parseInt(yyyymmdd.slice(4,6))-1,
-    parseInt(yyyymmdd.slice(6,8))
-  );
-  d.setDate(d.getDate()-days);
-  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
-}
 
 /* ── GAS Proxy 查詢（最優先，需先部署 Google Apps Script）── */
 function fetchViaGAS(yyyymmdd, currency, isCash){
@@ -1694,37 +1617,6 @@ async function doPrintAndSave(){
   window.print();
 }
 
-/* ── 備用參考匯率（來源：fawazahmed0/jsDelivr CDN 或 Frankfurter/ECB）
-      allorigins 可抓這些公開 CDN，不像台銀會被擋
-      ⚠ 非台銀官方匯率，僅供參考，需至台銀確認 ── */
-async function fetchRefRate(yyyymmdd, currency){
-  const date=`${yyyymmdd.slice(0,4)}-${yyyymmdd.slice(4,6)}-${yyyymmdd.slice(6,8)}`;
-  const cur=currency.toLowerCase();
-
-  /* ① fawazahmed0 currency-api（每日更新，免費，各主要幣別均有 TWD）*/
-  try{
-    const url=`https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/${date}/currencies/${cur}/twd.json`;
-    const text=await fetchViaJSONP(url);
-    if(text){
-      const obj=JSON.parse(text);
-      const r=+obj?.[cur]?.twd;
-      if(r&&!isNaN(r)) return {rate:Math.round(r*1000)/1000, src:'市場匯率（fawazahmed0）'};
-    }
-  }catch(e){}
-
-  /* ② Frankfurter（歐洲央行匯率，日期無資料則用最近一筆）*/
-  try{
-    const url=`https://api.frankfurter.app/${date}?from=${currency}&to=TWD`;
-    const text=await fetchViaJSONP(url);
-    if(text){
-      const obj=JSON.parse(text);
-      const r=+obj?.rates?.TWD;
-      if(r&&!isNaN(r)) return {rate:Math.round(r*1000)/1000, src:'ECB（Frankfurter）'};
-    }
-  }catch(e){}
-
-  return null;
-}
 
 /* ── 開啟台銀歷史查詢新分頁（form POST → _blank，直接顯示結果）── */
 function openBotHistoryWindow(yyyymmdd){
@@ -1746,80 +1638,7 @@ function openBotHistoryWindow(yyyymmdd){
   frm.remove();
 }
 
-/* ── JSONP（script tag，繞過 file:// null-origin）── */
-function fetchViaJSONP(url){
-  return new Promise((resolve,reject)=>{
-    const cbName='_botJP_'+Date.now()+'_'+Math.floor(Math.random()*99999);
-    let script=null;
-    const cleanup=()=>{ try{delete window[cbName];}catch(e){} script?.remove(); };
-    const timer=setTimeout(()=>{ cleanup(); reject(new Error('逾時')); },7000);
-    window[cbName]=function(data){
-      clearTimeout(timer); cleanup();
-      const code=data?.status?.http_code;
-      if(code&&code!==200){ reject(new Error(`HTTP ${code}`)); return; }
-      const content=data?.contents;
-      if(!content){ reject(new Error(`無內容(code=${code||'?'})`)); return; }
-      resolve(content);
-    };
-    script=document.createElement('script');
-    script.src=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&callback=${cbName}&_=${Date.now()}`;
-    script.onerror=()=>{ clearTimeout(timer); cleanup(); reject(new Error('script 載入失敗')); };
-    document.head.appendChild(script);
-  });
-}
 
-/* ── 嘗試抓取某日期匯率（回傳 {rate, err}）── */
-async function tryFetchBOTDay(yyyymmdd, currency, isCash){
-  const yy=yyyymmdd.slice(0,4),mm=yyyymmdd.slice(4,6),dd=yyyymmdd.slice(6,8);
-  const csvUrl=`https://rate.bot.com.tw/xrt/flcsv/${yyyymmdd}/day`;
-  const enc=encodeURIComponent(csvUrl);
-  const errs=[];
-
-  /* ① GAS Proxy（最優先，直連台銀伺服器，無 CORS 限制）*/
-  try{
-    const gasRes=await fetchViaGAS(yyyymmdd,currency,isCash);
-    if(gasRes&&gasRes.rate!==null&&!isNaN(gasRes.rate))
-      return {rate:+gasRes.rate, err:null, src:gasRes.src||'today', snapshotDate:gasRes.snapshotDate||''};
-    errs.push('[GAS] 回傳空值');
-  }catch(e){ errs.push('[GAS] '+e.message); }
-
-  /* ② JSONP CSV（allorigins script tag）*/
-  try{
-    const text=await fetchViaJSONP(csvUrl);
-    const rate=parseBOTcsv(text,currency,isCash);
-    if(rate!==null) return {rate,err:null};
-    errs.push(`[JSONP-CSV] 找不到${currency} 預覽:${text.slice(0,50).replace(/\n/g,'↵')}`);
-  }catch(e){ errs.push('[JSONP-CSV] '+e.message); }
-
-  /* ② JSONP 歷史頁（GET+日期參數）*/
-  try{
-    const histUrl=`https://rate.bot.com.tw/xrt/history?Lang=zh-TW&qryDate=${yy}%2F${mm}%2F${dd}`;
-    const text=await fetchViaJSONP(histUrl);
-    const rate=parseBOTHistoryHTML(text,currency,isCash);
-    if(rate!==null) return {rate,err:null};
-    errs.push('[JSONP-歷史頁] 找不到'+currency);
-  }catch(e){ errs.push('[JSONP-歷史頁] '+e.message); }
-
-  /* ③ fetch 備用（從 http:// 開啟時有效）*/
-  for(const c of [
-    {label:'CSV直連',    url:csvUrl,                                          type:'csv'},
-    {label:'corsproxy',  url:`https://corsproxy.io/?url=${enc}`,              type:'csv'},
-    {label:'allorigins', url:`https://api.allorigins.win/raw?url=${enc}`,     type:'csv'},
-  ]){
-    try{
-      const res=await fetch(c.url,{cache:'no-cache',redirect:'follow'});
-      if(!res.ok){ errs.push(`[${c.label}] HTTP ${res.status}`); continue; }
-      const buf=await res.arrayBuffer();
-      let text='';
-      try{text=new TextDecoder('utf-8',{fatal:true}).decode(buf);}
-      catch{text=new TextDecoder('big5').decode(buf);}
-      const rate=parseBOTcsv(text,currency,isCash);
-      if(rate!==null) return {rate,err:null};
-      errs.push(`[${c.label}] 找不到${currency}`);
-    }catch(e){ errs.push(`[${c.label}] ${e.message}`); }
-  }
-  return {rate:null, err:errs.join(' | ')};
-}
 
 /* ── 查詢台灣銀行歷史匯率（最多往前 7 天）── */
 async function fetchBOTRate(px,i){
@@ -1908,48 +1727,26 @@ async function fetchBOTRate(px,i){
     /* 自動開啟台銀查詢分頁（POST form → _blank）*/
     openBotHistoryWindow(baseDate);
 
-    /* 嘗試備用參考匯率（市場匯率 API）*/
-    lblEl.innerHTML=`<span style="color:#888;font-size:11px;">取得參考匯率中…</span>`;
-    const ref=await fetchRefRate(baseDate,currency);
-
-    if(ref){
-      /* 有備用匯率：先帶入，同時提示需以台銀官方數字確認 */
-      _fxMeta[px+i]={rate:String(ref.rate), date:`${yy}/${mm}/${dd}`, src:'參考匯率（非台銀）'};
-      if(rateInp){ rateInp.value=ref.rate; calcFx(px,i); }
-      lblEl.innerHTML=
-        `<span style="color:#e67e22;font-size:11.5px;">⚠ 參考匯率（${ref.src}）：`+
-        `<b style="color:#e67e22;">${ref.rate}</b>　已帶入欄位</span><br>`+
-        `<span style="font-size:10.5px;color:#666;">此為<b>市場匯率，非台銀官方數字</b>。`+
-        `台銀查詢視窗已開啟，請在新分頁確認 `+
-        `<b style="color:var(--navy2)">${currency} ${rtype}</b>（${yy}/${mm}/${dd}）`+
-        `後修正右側匯率欄位。</span>`;
-      if(rateInp){
-        rateInp.style.borderColor='#e67e22';
-        rateInp.style.boxShadow='0 0 0 2px rgba(230,126,34,.2)';
-        rateInp.addEventListener('input',()=>{
-          rateInp.style.borderColor=''; rateInp.style.boxShadow='';
-          calcFx(px,i);
-        },{once:true});
-      }
-    } else {
-      /* 沒有備用匯率：純手動引導 */
-      lblEl.innerHTML=
-        `<span style="color:#c0392b;font-weight:bold;font-size:11.5px;">📋 已開啟台銀查詢視窗 ↗</span><br>`+
-        `<span style="font-size:11px;color:#444;">請在新分頁找 `+
-        `<b style="color:var(--navy2)">${currency}</b> 的 `+
-        `<b style="color:var(--navy2)">${rtype}</b> 欄位（${yy}/${mm}/${dd}），`+
-        `填入右側「匯率」欄位後按 Enter。</span>`;
-      if(rateInp){
-        rateInp.style.borderColor='#e74c3c';
-        rateInp.style.boxShadow='0 0 0 2px rgba(231,76,60,.25)';
-        rateInp.placeholder='← 填入匯率';
-        rateInp.focus();
-        rateInp.addEventListener('input',()=>{
-          rateInp.style.borderColor=''; rateInp.style.boxShadow='';
-          rateInp.placeholder='手動輸入';
-          calcFx(px,i);
-        },{once:true});
-      }
+    /* 2026-09-18：原本這裡還有第三層「市場匯率」備援，但它走的 allorigins 代理
+       已停止服務，且來源網址早已 404，實測永遠取不到值，只會多空轉約 14 秒。
+       市場匯率也不是台銀牌告、不分現金／即期，核銷不能用，因此整段移除，
+       查不到就直接引導手動填寫。*/
+    lblEl.innerHTML=
+      `<span style="color:#c0392b;font-weight:bold;font-size:11.5px;">📋 已開啟台銀查詢視窗 ↗</span><br>`+
+      `<span style="font-size:11px;color:#444;">請在新分頁找 `+
+      `<b style="color:var(--navy2)">${currency}</b> 的 `+
+      `<b style="color:var(--navy2)">${rtype}</b> 欄位（${yy}/${mm}/${dd}），`+
+      `填入右側「匯率」欄位後按 Enter。</span>`;
+    if(rateInp){
+      rateInp.style.borderColor='#e74c3c';
+      rateInp.style.boxShadow='0 0 0 2px rgba(231,76,60,.25)';
+      rateInp.placeholder='← 填入匯率';
+      rateInp.focus();
+      rateInp.addEventListener('input',()=>{
+        rateInp.style.borderColor=''; rateInp.style.boxShadow='';
+        rateInp.placeholder='手動輸入';
+        calcFx(px,i);
+      },{once:true});
     }
   }
 }
